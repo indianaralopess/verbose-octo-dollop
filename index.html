@@ -6,6 +6,7 @@
   <title>Dashboard Prestadores</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     :root {
       --bg: #f4efe8;
@@ -187,6 +188,10 @@
       align-items: flex-end;
     }
 
+    @media (min-width: 1181px) {
+      .filters > .filter-search-wide { grid-column: 1 / span 2; }
+    }
+
     .filter {
       display: flex;
       flex-direction: column;
@@ -270,15 +275,15 @@
       position: absolute;
       top: calc(100% + 8px);
       left: 0;
-      width: min(340px, 84vw);
-      max-height: 360px;
+      width: min(320px, 84vw);
+      max-height: 320px;
       overflow: auto;
       background: var(--panel-strong);
       border: 1px solid var(--line);
       border-radius: 12px;
       box-shadow: var(--shadow);
       padding: 10px;
-      z-index: 4;
+      z-index: 9999;
     }
 
     .filter-menu[hidden] {
@@ -312,9 +317,10 @@
 
     .filter-actions {
       display: flex;
-      align-items: center;
+      flex-direction: column;
+      align-items: stretch;
       align-self: end;
-      gap: 10px;
+      gap: 8px;
     }
 
     .export-menu-wrap .btn {
@@ -370,7 +376,7 @@
     }
 
     .filter-divider {
-      color: #dccfbe;
+      color: var(--line);
       font-size: 20px;
       line-height: 1;
       padding: 0 6px;
@@ -391,9 +397,7 @@
       border-radius: 12px;
       box-shadow: var(--shadow);
       padding: 8px;
-      z-index: 5;
-      display: grid;
-      gap: 6px;
+      z-index: 9999;
     }
 
     .export-menu[hidden] {
@@ -429,6 +433,36 @@
     .btn-soft {
       background: var(--accent-soft);
       color: var(--accent);
+    }
+
+    .btn-sm {
+      padding: 5px 10px;
+      font-size: 11px;
+      border-radius: 8px;
+    }
+
+    .btn-group {
+      display: inline-flex;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-right: 8px;
+    }
+
+    .btn-group-item {
+      border: 0;
+      background: transparent;
+      padding: 4px 10px;
+      font: inherit;
+      font-size: 11px;
+      cursor: pointer;
+      color: var(--muted);
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .btn-group-item.active {
+      background: var(--accent);
+      color: #fff;
     }
 
     .btn-icon {
@@ -482,7 +516,8 @@
     }
 
     .panel-body--map {
-      padding: 10px 12px 12px;
+      position: relative;
+      min-height: 180px;
     }
 
     .chart-list {
@@ -491,6 +526,7 @@
       gap: 12px;
       max-height: 480px;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       padding-right: 12px;
       scrollbar-gutter: stable;
     }
@@ -560,6 +596,68 @@
       border: 1px solid rgba(220, 207, 190, 0.8);
     }
 
+    .map-container--brazil .leaflet-control-container .leaflet-bottom {
+      margin-bottom: 4px;
+    }
+
+    .map-container--brazil .leaflet-map-pane {
+      margin-left: 40px;
+    }
+
+    .map-legend {
+      background: rgba(255, 252, 247, 0.10);
+      border: 1px solid rgba(220, 207, 190, 0.9);
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(54, 38, 24, 0.08);
+      padding: 4px 6px;
+      color: var(--text);
+      font-size: 10px;
+      line-height: 1.1;
+      margin-bottom: 2px;
+    }
+
+    .map-legend strong {
+      display: block;
+      margin-bottom: 2px;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .map-legend-scale {
+      display: flex;
+      gap: 2px;
+      align-items: flex-end;
+    }
+
+    .map-legend-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      min-width: 26px;
+    }
+
+    .map-legend-label {
+      font-size: 8px;
+      color: var(--muted);
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    .map-legend-swatch {
+      width: 100%;
+      height: 6px;
+      border-radius: 1px;
+      border: 1px solid rgba(94, 81, 67, 0.18);
+    }
+
+    .map-container--brazil .leaflet-control-container .leaflet-bottom {
+      margin-bottom: 4px;
+    }
+
     .map-container--brazil :is(.leaflet-control-zoom a, .leaflet-popup-content-wrapper) {
       border-radius: 10px;
     }
@@ -581,44 +679,57 @@
     }
 
     .map-legend {
-      background: rgba(255, 252, 247, 0.96);
+      background: rgba(255, 252, 247, 0.10);
       border: 1px solid rgba(220, 207, 190, 0.9);
-      border-radius: 12px;
-      box-shadow: 0 10px 24px rgba(54, 38, 24, 0.12);
-      padding: 10px 12px;
+      border-radius: 8px;
+      box-shadow: 0 6px 16px rgba(54, 38, 24, 0.10);
+      padding: 5px 8px;
       color: var(--text);
-      font-size: 12px;
-      line-height: 1.35;
+      font-size: 11px;
+      line-height: 1.2;
+      margin-bottom: 2px;
     }
 
     .map-legend strong {
       display: block;
-      margin-bottom: 8px;
-      font-size: 12px;
+      margin-bottom: 3px;
+      font-size: 10px;
       text-transform: uppercase;
       letter-spacing: 0.06em;
       color: var(--muted);
+      text-align: center;
     }
 
     .map-legend-scale {
-      display: grid;
-      gap: 6px;
+      display: flex;
+      gap: 3px;
+      align-items: flex-end;
     }
 
-    .map-legend-row {
+    .map-legend-item {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 8px;
+      gap: 2px;
+      min-width: 32px;
+    }
+
+    .map-legend-label {
+      font-size: 9px;
+      color: var(--muted);
+      white-space: nowrap;
+      text-align: center;
     }
 
     .map-legend-swatch {
-      width: 14px;
-      height: 14px;
-      border-radius: 4px;
+      width: 100%;
+      height: 8px;
+      border-radius: 2px;
       border: 1px solid rgba(94, 81, 67, 0.18);
     }
 
     .bar-row {
+      flex-shrink: 0;
       display: grid;
       grid-template-columns: minmax(160px, 1.2fr) 2.2fr auto;
       gap: 12px;
@@ -681,8 +792,93 @@
       border-color: #cbb9a4;
     }
 
+    .whatsapp-link {
+      background: transparent !important;
+      border-color: #b0b0b0 !important;
+      color: #888 !important;
+    }
+
+    .whatsapp-link:hover {
+      background: transparent !important;
+      border-color: #666 !important;
+      color: #555 !important;
+    }
+
+    .vehicle-cell-truncate {
+      display: block;
+      width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .vehicle-copy-text {
+      border: 0;
+      background: transparent;
+      padding: 0;
+      margin: 0;
+      width: 100%;
+      text-align: left;
+      font: inherit;
+      color: inherit;
+      cursor: copy;
+    }
+
+    .vehicle-copy-text:hover {
+      color: var(--accent);
+    }
+
+    .vehicle-col-address {
+      min-width: 180px;
+      max-width: 180px;
+    }
+
+    .vehicle-col-associated {
+      min-width: 180px;
+      max-width: 180px;
+    }
+
+    .vehicle-col-consultant {
+      min-width: 140px;
+      max-width: 140px;
+    }
+
+    .vehicle-col-institution {
+      min-width: 150px;
+      max-width: 150px;
+    }
+
+    .vehicle-col-provider {
+      min-width: 150px;
+      max-width: 150px;
+    }
+
+    .vehicle-col-route {
+      min-width: 108px;
+      max-width: 108px;
+    }
+
+    .vehicle-col-whatsapp {
+      min-width: 56px;
+      max-width: 56px;
+      text-align: center;
+    }
+
+    .adaptive-table-compact {
+      width: 100%;
+      min-width: 0;
+      table-layout: fixed;
+    }
+
+    .adaptive-table-wide {
+      width: 100%;
+      min-width: calc(var(--table-col-count, 14) * var(--table-col-min-width, 120px));
+      table-layout: fixed;
+    }
+
     .table-wrap {
       overflow: auto;
+      -webkit-overflow-scrolling: touch;
       border: 1px solid var(--line);
       border-radius: 18px;
       background: var(--panel-strong);
@@ -692,6 +888,7 @@
     .table-wrap.horizontal-scroll {
       overflow-x: auto;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .table-wrap::-webkit-scrollbar {
@@ -715,16 +912,15 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 960px;
     }
 
     th,
     td {
-      padding: 12px 14px;
+      padding: 10px 12px;
       border-bottom: 1px solid #eee2d2;
       text-align: left;
       vertical-align: top;
-      font-size: 14px;
+      font-size: 13px;
     }
 
     th {
@@ -760,6 +956,31 @@
       font-weight: 800;
     }
 
+    .resize-handle {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 6px;
+      cursor: col-resize;
+      z-index: 2;
+      background: transparent;
+      background-clip: content-box;
+      padding: 0 2px;
+    }
+
+    .resize-handle:hover::after,
+    .resize-handle.resizing::after {
+      content: "";
+      position: absolute;
+      top: 4px;
+      bottom: 4px;
+      left: 2px;
+      width: 2px;
+      background: rgba(13, 122, 99, 0.35);
+      border-radius: 2px;
+    }
+
     tr:hover td {
       background: #fffcf7;
     }
@@ -774,6 +995,132 @@
       color: #5e5143;
       font-size: 12px;
       font-weight: 700;
+    }
+
+    .grid.two-col > .panel:first-child {
+      position: relative;
+    }
+
+    #providerDetail {
+      position: absolute;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: var(--radius);
+      padding: 32px 20px;
+    }
+
+    #providerDetail[hidden] {
+      display: none;
+    }
+
+    #providerDetail .provider-detail-card {
+      background: var(--panel);
+      border: 1px solid rgba(220, 207, 190, 0.65);
+      border-radius: var(--radius);
+      box-shadow: 0 8px 32px rgba(54, 38, 24, 0.18);
+      padding: 20px;
+      max-width: 400px;
+      width: 100%;
+      display: grid;
+      gap: 8px;
+    }
+
+    .provider-detail-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .provider-detail-header h3 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .provider-detail-close {
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--muted);
+      border-radius: 8px;
+      width: 28px;
+      height: 28px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .provider-detail-close:hover {
+      color: var(--text);
+      border-color: var(--muted);
+    }
+
+    .provider-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 6px 16px;
+    }
+
+    .provider-detail-field {
+      display: grid;
+      gap: 2px;
+    }
+
+    .provider-detail-field-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .provider-detail-field-value {
+      font-size: 13px;
+      color: var(--text);
+      word-break: break-word;
+    }
+
+    .provider-detail-field-value a {
+      color: #1a73e8;
+      text-decoration: none;
+    }
+
+    .provider-detail-field-value a:hover {
+      text-decoration: underline;
+    }
+
+    .provider-whatsapp-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #25d366;
+      font-weight: 700;
+      text-decoration: none;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .provider-whatsapp-link:hover {
+      text-decoration: underline;
+    }
+
+    .provider-whatsapp-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #25d366;
+      color: #fff;
     }
 
     .vehicle-controls {
@@ -806,7 +1153,28 @@
       border-radius: 12px;
       box-shadow: var(--shadow);
       padding: 10px;
-      z-index: 3;
+      z-index: 9999;
+    }
+
+    .column-menu > .column-items {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .column-search {
+      width: 100%;
+      box-sizing: border-box;
+      margin: 6px 0;
+      padding: 6px 8px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--canvas);
+      color: var(--text);
+      font-size: 12px;
+    }
+    .column-search:focus {
+      outline: none;
+      border-color: var(--theme);
     }
 
     .column-menu[hidden] {
@@ -844,14 +1212,19 @@
     .column-item {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 5px 2px;
+      gap: 6px;
+      padding: 4px 2px;
       font-size: 13px;
       color: var(--text);
     }
 
-    .column-item input {
+    .column-item input[type="checkbox"] {
       accent-color: var(--accent);
+      width: 14px;
+      height: 14px;
+      margin: 0;
+      flex: none;
+      cursor: pointer;
     }
 
     .muted {
@@ -886,6 +1259,9 @@
       .two-col {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
+      .filters > .filter-search-wide {
+        grid-column: auto;
+      }
     }
 
     @media (max-width: 760px) {
@@ -913,6 +1289,51 @@
       .bar-value {
         text-align: left;
       }
+
+      .map-container--brazil {
+        height: min(460px, 50vh);
+      }
+
+      .card {
+        min-height: 110px;
+      }
+
+      #vehicleTable {
+        min-width: 1200px;
+      }
+      #vehicleTable th,
+      #vehicleTable td {
+        min-width: 0 !important;
+        max-width: none !important;
+      }
+
+      #providerTable {
+        min-width: 800px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero {
+        padding: 16px;
+      }
+
+      .chart-list {
+        max-height: min(480px, 60vh);
+      }
+
+      .table-wrap {
+        max-height: min(600px, 70vh);
+      }
+
+      .export-menu {
+        left: 0;
+        right: auto;
+        max-width: calc(100vw - 32px);
+      }
+
+      #providerDetail {
+        padding: 16px 12px;
+      }
     }
   </style>
 </head>
@@ -924,17 +1345,17 @@
         Visualização de prestadores mais próximos por veículo. Selecione a pasta com os CSVs do resultado para carregar a análise.
       </p>
       <div class="toolbar">
-        <button class="upload" id="btnCarregarResultado" style="background: none; border: none; padding: 0; display: none;">
-          <span>Carregar Resultado Final</span>
-        </button>
-        <label class="upload">
-          <span>Importar outra pasta com CSVs</span>
-          <input id="folderInput" type="file" webkitdirectory multiple accept=".csv">
-        </label>
         <div class="hero-note" id="sourceSummary">Nenhuma pasta importada.</div>
+        <div class="export-menu-wrap">
+          <button class="btn" type="button" id="exportBtn" title="Exportar tabela de veículos">Exportar</button>
+          <div class="export-menu" id="exportMenu" hidden>
+            <button type="button" onclick="exportFilteredView()">CSV</button>
+            <button type="button" onclick="exportXmlView()">XML (Excel)</button>
+          </div>
+        </div>
       </div>
       <div class="status-line" id="statusLine">
-        Selecione uma pasta para carregar os CSVs.
+        Aguardando dados do resultado final.
       </div>
     </section>
 
@@ -961,41 +1382,42 @@
       </article>
     </section>
 
-    <section class="panel grid filters">
+    <section class="panel grid filters" id="filtersGrid">
       <select id="resultFileSelect" style="display: none;"></select>
-      <div class="filter">
+      <div class="filter filter-search-wide">
         <label for="searchInput">Busca Geral</label>
         <input id="searchInput" type="text" placeholder="Placa, associado, prestador, consultor...">
       </div>
-      <div class="filter">
+      <div class="filter" data-filter-key="state">
         <label for="stateFilter">UF</label>
         <div class="filter-menu-wrap">
           <button id="stateFilter" class="filter-multi-toggle" type="button"></button>
           <div id="stateFilterMenu" class="filter-menu" hidden></div>
         </div>
       </div>
-      <div class="filter">
+      <div class="filter" data-filter-key="provider">
         <label for="providerFilter">Prestador Top 1</label>
         <div class="filter-menu-wrap">
           <button id="providerFilter" class="filter-multi-toggle" type="button"></button>
           <div id="providerFilterMenu" class="filter-menu" hidden></div>
         </div>
       </div>
-      <div class="filter">
-        <label for="institutionFilter">Instituição</label>
+      <div class="filter" data-filter-key="tracker">
+        <label for="trackerFilter">Obrigatório Rastreador</label>
         <div class="filter-menu-wrap">
-          <button id="institutionFilter" class="filter-multi-toggle" type="button"></button>
-          <div id="institutionFilterMenu" class="filter-menu" hidden></div>
+          <button id="trackerFilter" class="filter-multi-toggle" type="button"></button>
+          <div id="trackerFilterMenu" class="filter-menu" hidden></div>
         </div>
       </div>
-      <div class="filter-actions">
-        <button class="reset-btn" id="clearFiltersBtn" type="button" title="Resetar filtros">Resetar</button>
-        <span class="filter-divider" aria-hidden="true">|</span>
-        <div class="export-menu-wrap">
-          <button class="btn btn-soft" id="exportViewBtn" type="button">Exportar</button>
-          <div id="exportMenu" class="export-menu" hidden>
-            <button id="exportCsvBtn" type="button">Exportar CSV</button>
-            <button id="exportPdfBtn" type="button">Exportar PDF</button>
+      <div class="filter-actions" id="filterActions">
+        <div class="filter-menu-wrap" style="position:relative;">
+          <button class="btn btn-soft" id="addFilterBtn" type="button" title="Adicionar filtro">Mais filtros</button>
+          <div id="addFilterMenu" class="filter-menu" hidden>
+            <div class="column-menu-head">
+              <span>Adicionar filtro</span>
+            </div>
+            <input class="filter-menu-search" type="text" id="addFilterSearch" placeholder="Buscar coluna...">
+            <div class="filter-menu-list" id="addFilterList"></div>
           </div>
         </div>
       </div>
@@ -1011,13 +1433,18 @@
           <span class="pill" id="providerChartMeta">0 itens</span>
         </div>
         <div class="panel-body chart-list" id="providerChart"></div>
+        <div id="providerDetail" hidden></div>
       </article>
 
       <article class="panel">
         <div class="panel-head">
           <div style="flex: 1;">
             <h2>Placas por Estado</h2>
-            <p>Mapa do Brasil com todos os estados preenchidos conforme o volume de placas no recorte.</p>
+            <p>Volume de placas por estado no recorte atual.</p>
+          </div>
+          <div class="btn-group" id="stateToggleView">
+            <button class="btn-group-item active" data-view="map">Mapa</button>
+            <button class="btn-group-item" data-view="chart">Gráfico</button>
           </div>
           <span class="pill" id="stateChartMeta">0 UFs</span>
         </div>
@@ -1062,8 +1489,8 @@
     <section class="grid">
       <article class="panel">
         <div class="panel-head">
-          <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
-            <button class="accordion-toggle" id="providerTableToggle" aria-expanded="false" onclick="toggleProviderTable()">▼</button>
+          <div style="display: flex; align-items: center; gap: 8px; flex: 1; cursor: pointer;" id="providerTableHead">
+            <button class="accordion-toggle" id="providerTableToggle" aria-expanded="false">▼</button>
             <div>
               <h2>Tabela de Prestadores</h2>
               <p>Prestadores ordenáveis por volume, percentual e distância média.</p>
@@ -1119,13 +1546,16 @@
       filterSelections: {
         state: [],
         provider: [],
-        institution: [],
+        tracker: [],
       },
       filterOptions: {
         state: [],
         provider: [],
-        institution: [],
+        tracker: [],
       },
+      dynamicFilterKeys: [],
+      dynamicFilterSelections: {},
+      dynamicFilterOptions: {},
       sortVehicle: { key: "Placa", direction: "asc" },
       sortProvider: { key: "placas", direction: "desc" },
       chartSelections: {
@@ -1136,10 +1566,12 @@
       },
       brazilMap: null,
       brazilStatesGeoJson: null,
+      providerDetail: "",
+      providerDetailRow: null,
+      stateView: "map",
     };
 
     const ids = {
-      folderInput: document.getElementById("folderInput"),
       sourceSummary: document.getElementById("sourceSummary"),
       statusLine: document.getElementById("statusLine"),
       resultFileSelect: document.getElementById("resultFileSelect"),
@@ -1148,13 +1580,13 @@
       stateFilterMenu: document.getElementById("stateFilterMenu"),
       providerFilter: document.getElementById("providerFilter"),
       providerFilterMenu: document.getElementById("providerFilterMenu"),
-      institutionFilter: document.getElementById("institutionFilter"),
-      institutionFilterMenu: document.getElementById("institutionFilterMenu"),
-      clearFiltersBtn: document.getElementById("clearFiltersBtn"),
-      exportViewBtn: document.getElementById("exportViewBtn"),
-      exportMenu: document.getElementById("exportMenu"),
-      exportCsvBtn: document.getElementById("exportCsvBtn"),
-      exportPdfBtn: document.getElementById("exportPdfBtn"),
+      trackerFilter: document.getElementById("trackerFilter"),
+      trackerFilterMenu: document.getElementById("trackerFilterMenu"),
+      addFilterBtn: document.getElementById("addFilterBtn"),
+      addFilterMenu: document.getElementById("addFilterMenu"),
+      addFilterSearch: document.getElementById("addFilterSearch"),
+      addFilterList: document.getElementById("addFilterList"),
+      filtersGrid: document.getElementById("filtersGrid"),
       kpiPlacas: document.getElementById("kpiPlacas"),
       kpiPrestadores: document.getElementById("kpiPrestadores"),
       kpiEstados: document.getElementById("kpiEstados"),
@@ -1164,6 +1596,7 @@
       stateChartMeta: document.getElementById("stateChartMeta"),
       providerChart: document.getElementById("providerChart"),
       stateMap: document.getElementById("stateMapView"),
+      stateToggleView: document.getElementById("stateToggleView"),
       consultorChart: document.getElementById("consultorChart"),
       regionalChart: document.getElementById("regionalChart"),
       distanceChart: document.getElementById("distanceChart"),
@@ -1173,40 +1606,57 @@
       vehicleTable: document.getElementById("vehicleTable"),
       vehicleColumnsToggle: document.getElementById("vehicleColumnsToggle"),
       vehicleColumnsMenu: document.getElementById("vehicleColumnsMenu"),
+      exportBtn: document.getElementById("exportBtn"),
+      exportMenu: document.getElementById("exportMenu"),
     };
 
-    const candidateStateColumns = ["UF", "Estado_UF", "_state"];
-    const candidateInstitutionColumns = ["Instituição", "Instituicao"];
-    const candidateConsultorColumns = ["Consultor"];
-    const candidateRegionalColumns = ["Regional"];
+    const candidateStateColumns = ["UF", "Estado_UF", "_state", "uf", "estado"];
+    const defaultFilterKeys = ["state", "provider", "tracker"];
+    const ufNames = {
+      AC: "Acre", AL: "Alagoas", AP: "Amapá", AM: "Amazonas",
+      BA: "Bahia", CE: "Ceará", DF: "Distrito Federal", ES: "Espírito Santo",
+      GO: "Goiás", MA: "Maranhão", MT: "Mato Grosso", MS: "Mato Grosso do Sul",
+      MG: "Minas Gerais", PA: "Pará", PB: "Paraíba", PR: "Paraná",
+      PE: "Pernambuco", PI: "Piauí", RJ: "Rio de Janeiro",
+      RN: "Rio Grande do Norte", RS: "Rio Grande do Sul", RO: "Rondônia",
+      RR: "Roraima", SC: "Santa Catarina", SP: "São Paulo",
+      SE: "Sergipe", TO: "Tocantins",
+    };
+    function getStateDisplayName(uf) {
+      return ufNames[uf] || uf;
+    }
+    const candidateInstitutionColumns = ["Instituição", "Instituicao", "instituicao"];
+    const candidateTrackerColumns = ["Obrigatório Rastreador", "Obrigatório_Rastreador", "obrigatorio_rastreador"];
+    const candidateConsultorColumns = ["Consultor", "consultor"];
+    const candidateRegionalColumns = ["Regional", "regional"];
     const distanceBucketDefinitions = [
-      { label: "0-50 km", min: 0, max: 50 },
+      { label: "0-30 km", min: 0, max: 30 },
+      { label: "31-50 km", min: 31, max: 50 },
       { label: "51-100 km", min: 51, max: 100 },
       { label: "101-250 km", min: 101, max: 250 },
       { label: "251-500 km", min: 251, max: 500 },
       { label: "500+ km", min: 501, max: Infinity },
     ];
     const vehicleRouteColumn = "Ver no mapa";
+    const vehicleWhatsAppColumn = "WhatsApp";
     const publishedResultCandidates = [
       "output/resultado_final.parcial.csv",
       "output/resultado_final.csv",
     ];
+    const compactVehicleColumnLimit = 13;
     const defaultVehicleColumns = [
-      "Placa",
-      "ID Solicitação",
-      "Instituição",
-      "Associado",
-      "UF",
-      "Endereço",
-      "Município Inst.",
-      "Regional",
-      "Consultor",
+      "placa",
+      "instituicao",
+      "associado",
+      "uf",
+      "endereco",
+      "regional",
+      "consultor",
       "Prestador_1_Nome",
       "Prestador_1_Endereco",
       "Prestador_1_Distancia_km",
     ];
 
-    ids.folderInput.addEventListener("change", handleFolderImport);
     ids.resultFileSelect.addEventListener("change", () => {
       state.activeResultFileName = ids.resultFileSelect.value;
       loadActiveResult();
@@ -1214,25 +1664,32 @@
     ids.searchInput.addEventListener("input", applyFilters);
     ids.stateFilter.addEventListener("click", () => toggleFilterMenu("state"));
     ids.providerFilter.addEventListener("click", () => toggleFilterMenu("provider"));
-    ids.institutionFilter.addEventListener("click", () => toggleFilterMenu("institution"));
-    ids.clearFiltersBtn.addEventListener("click", clearFilters);
+    ids.trackerFilter.addEventListener("click", () => toggleFilterMenu("tracker"));
+    ids.stateToggleView.addEventListener("click", (e) => {
+      const btn = e.target.closest(".btn-group-item");
+      if (!btn) return;
+      const view = btn.dataset.view;
+      if (view === state.stateView) return;
+      state.stateView = view;
+      ids.stateToggleView.querySelectorAll(".btn-group-item").forEach((b) => b.classList.toggle("active", b.dataset.view === view));
+      applyFilters();
+    });
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape") {
         clearFilters();
-        ids.exportMenu.hidden = true;
       }
     });
-    ids.exportViewBtn.addEventListener("click", () => {
+    ids.addFilterBtn.addEventListener("click", () => {
+      renderAddFilterMenu();
+      ids.addFilterMenu.hidden = !ids.addFilterMenu.hidden;
+    });
+    ids.addFilterSearch.addEventListener("input", () => {
+      renderAddFilterMenu(ids.addFilterSearch.value);
+    });
+    ids.exportBtn.addEventListener("click", () => {
       ids.exportMenu.hidden = !ids.exportMenu.hidden;
     });
-    ids.exportCsvBtn.addEventListener("click", () => {
-      exportFilteredView();
-      ids.exportMenu.hidden = true;
-    });
-    ids.exportPdfBtn.addEventListener("click", () => {
-      exportPdfView();
-      ids.exportMenu.hidden = true;
-    });
+
     ids.vehicleColumnsToggle.addEventListener("click", () => {
       ids.vehicleColumnsMenu.hidden = !ids.vehicleColumnsMenu.hidden;
     });
@@ -1242,7 +1699,12 @@
           ids.vehicleColumnsMenu.hidden = true;
         }
       }
-      for (const key of ["state", "provider", "institution"]) {
+      if (ids.exportMenu && !ids.exportMenu.hidden) {
+        if (!ids.exportMenu.contains(event.target) && !ids.exportBtn.contains(event.target)) {
+          ids.exportMenu.hidden = true;
+        }
+      }
+      for (const key of defaultFilterKeys) {
         const menu = ids[`${key}FilterMenu`];
         const toggle = ids[`${key}Filter`];
         if (menu && !menu.hidden) {
@@ -1251,9 +1713,18 @@
           }
         }
       }
-      if (ids.exportMenu && !ids.exportMenu.hidden) {
-        if (!ids.exportMenu.contains(event.target) && !ids.exportViewBtn.contains(event.target)) {
-          ids.exportMenu.hidden = true;
+      for (const col of state.dynamicFilterKeys) {
+        const menu = document.getElementById(getDynamicFilterMenuId(col));
+        const toggle = document.getElementById(getDynamicFilterToggleId(col));
+        if (menu && !menu.hidden) {
+          if (!menu.contains(event.target) && !toggle.contains(event.target)) {
+            menu.hidden = true;
+          }
+        }
+      }
+      if (ids.addFilterMenu && !ids.addFilterMenu.hidden) {
+        if (!ids.addFilterMenu.contains(event.target) && !ids.addFilterBtn.contains(event.target)) {
+          ids.addFilterMenu.hidden = true;
         }
       }
     });
@@ -1268,8 +1739,8 @@
         return;
       }
 
-      ids.statusLine.textContent = "Selecione uma pasta para carregar os CSVs.";
-      ids.sourceSummary.textContent = "Nenhum resultado publicado encontrado. Use a importação manual.";
+      ids.statusLine.textContent = "Nenhum resultado publicado encontrado.";
+      ids.sourceSummary.textContent = "Nenhum resultado publicado encontrado.";
     }
 
     async function loadPublishedResult() {
@@ -1386,7 +1857,7 @@
 
       const [headers, ...dataRows] = selected.rows;
       state.vehicleColumns = headers;
-      state.vehicleVisibleColumns = [...getDefaultVisibleVehicleColumns(headers), vehicleRouteColumn];
+      state.vehicleVisibleColumns = [...getDefaultVisibleVehicleColumns(headers), vehicleRouteColumn, vehicleWhatsAppColumn];
       state.rows = dataRows.map((values) => rowFromHeaders(headers, values));
       ids.statusLine.textContent = "";
       populateFilters();
@@ -1409,11 +1880,11 @@
       const count = state.vehicleVisibleColumns.length;
       ids.vehicleColumnsToggle.textContent = `Colunas (${count})`;
 
-      const selectableColumns = [...state.vehicleColumns, vehicleRouteColumn];
+      const selectableColumns = [...state.vehicleColumns, vehicleRouteColumn, vehicleWhatsAppColumn];
       const options = selectableColumns.map((col) => `
-        <label class="column-item" title="${escapeAttribute(col)}">
+        <label class="column-item" data-search="${escapeAttribute(getVehicleColumnLabel(col).toLowerCase())}" title="${escapeAttribute(getVehicleColumnLabel(col))}">
           <input type="checkbox" data-col="${escapeAttribute(col)}" ${visible.has(col) ? "checked" : ""}>
-          <span>${escapeHtml(col)}</span>
+          <span>${escapeHtml(getVehicleColumnLabel(col))}</span>
         </label>
       `).join("");
 
@@ -1425,14 +1896,15 @@
             <button type="button" data-cols-action="todas">Todas</button>
           </div>
         </div>
-        <div>${options}</div>
+        <input type="text" class="column-search" placeholder="Buscar coluna..." oninput="filterColumns(this)">
+        <div class="column-items">${options}</div>
       `;
 
       ids.vehicleColumnsMenu.querySelectorAll("input[data-col]").forEach((input) => {
         input.addEventListener("change", () => {
           const selected = [...ids.vehicleColumnsMenu.querySelectorAll("input[data-col]:checked")]
             .map((item) => item.dataset.col)
-            .filter((col) => state.vehicleColumns.includes(col) || col === vehicleRouteColumn);
+            .filter((col) => state.vehicleColumns.includes(col) || col === vehicleRouteColumn || col === vehicleWhatsAppColumn);
 
           if (!selected.length) {
             input.checked = true;
@@ -1448,39 +1920,57 @@
         btn.addEventListener("click", () => {
           const action = btn.dataset.colsAction;
           if (action === "essenciais") {
-            state.vehicleVisibleColumns = [...getDefaultVisibleVehicleColumns(state.vehicleColumns), vehicleRouteColumn];
+            state.vehicleVisibleColumns = [...getDefaultVisibleVehicleColumns(state.vehicleColumns), vehicleRouteColumn, vehicleWhatsAppColumn];
           }
           if (action === "todas") {
-            state.vehicleVisibleColumns = [...state.vehicleColumns, vehicleRouteColumn];
+            state.vehicleVisibleColumns = [...state.vehicleColumns, vehicleRouteColumn, vehicleWhatsAppColumn];
           }
           renderDashboard();
         });
       });
     }
 
+    function filterColumns(input) {
+      const filter = input.value.toLowerCase();
+      const menu = input.closest(".column-menu");
+      if (!menu) return;
+      menu.querySelectorAll(".column-item").forEach((item) => {
+        const searchText = item.dataset.search || item.textContent.toLowerCase();
+        item.hidden = !searchText.includes(filter);
+      });
+    }
+
     function populateFilters() {
       state.filterOptions.state = uniqueNonEmpty(state.rows.map(getVehicleState));
       state.filterOptions.provider = uniqueNonEmpty(state.rows.map((row) => normalizeCell(row["Prestador_1_Nome"])));
-      state.filterOptions.institution = uniqueNonEmpty(state.rows.map((row) => normalizeCell(firstValue(row, candidateInstitutionColumns))));
+      state.filterOptions.tracker = uniqueNonEmpty(state.rows.map((row) => normalizeCell(firstValue(row, candidateTrackerColumns))));
 
-      for (const key of ["state", "provider", "institution"]) {
+      for (const key of defaultFilterKeys) {
         state.filterSelections[key] = state.filterSelections[key].filter((value) => state.filterOptions[key].includes(value));
+      }
+
+      for (const col of state.dynamicFilterKeys) {
+        state.dynamicFilterOptions[col] = uniqueNonEmpty(state.rows.map((row) => normalizeCell(row[col])));
+        state.dynamicFilterSelections[col] = (state.dynamicFilterSelections[col] || []).filter((v) => state.dynamicFilterOptions[col].includes(v));
       }
 
       renderFilterMenu("state");
       renderFilterMenu("provider");
-      renderFilterMenu("institution");
+      renderFilterMenu("tracker");
+      renderDynamicFilters();
     }
 
     function getFilterPlaceholder(filterKey) {
       if (filterKey === "state") return "Todos os estados";
       if (filterKey === "provider") return "Todos os prestadores";
+      if (filterKey === "tracker") return "Todos";
       return "Todas as instituições";
     }
 
     function getFilterTitle(filterKey) {
       if (filterKey === "state") return "Selecionar UFs";
       if (filterKey === "provider") return "Selecionar prestadores";
+      if (filterKey === "tracker") return "Selecionar obrigatório rastreador";
       return "Selecionar instituições";
     }
 
@@ -1488,10 +1978,11 @@
       const button = ids[`${filterKey}Filter`];
       const selected = state.filterSelections[filterKey];
       const placeholder = getFilterPlaceholder(filterKey);
+      const displaySingle = (value) => filterKey === "state" ? getStateDisplayName(value) : value;
       const label = !selected.length
         ? placeholder
         : selected.length === 1
-          ? selected[0]
+          ? displaySingle(selected[0])
           : `${selected.length} selecionados`;
 
       button.innerHTML = `
@@ -1519,17 +2010,25 @@
       }
     }
 
-    function toggleFilterMenu(filterKey) {
-      for (const key of ["state", "provider", "institution"]) {
+    function toggleFilterMenu(filterKey, isDynamic = false) {
+      for (const key of defaultFilterKeys) {
         const menu = ids[`${key}FilterMenu`];
         if (key !== filterKey) {
           menu.hidden = true;
         }
       }
-      const menu = ids[`${filterKey}FilterMenu`];
+      for (const col of state.dynamicFilterKeys) {
+        const menu = document.getElementById(getDynamicFilterMenuId(col));
+        if (col !== filterKey && menu) {
+          menu.hidden = true;
+        }
+      }
+      const menu = isDynamic
+        ? document.getElementById(getDynamicFilterMenuId(filterKey))
+        : ids[`${filterKey}FilterMenu`];
       menu.hidden = !menu.hidden;
       if (!menu.hidden) {
-        const searchInput = menu.querySelector("input[data-filter-search]");
+        const searchInput = menu.querySelector("input[data-filter-search], input[data-dyn-filter-search]");
         if (searchInput) {
           searchInput.focus();
           searchInput.select();
@@ -1542,17 +2041,23 @@
       const options = state.filterOptions[filterKey];
       const selected = new Set(state.filterSelections[filterKey]);
       const normalizedSearch = searchTerm.trim().toLowerCase();
+      const matchesSearch = (value) => {
+        if (value.toLowerCase().includes(normalizedSearch)) return true;
+        if (filterKey === "state" && getStateDisplayName(value).toLowerCase().includes(normalizedSearch)) return true;
+        return false;
+      };
       const filteredOptions = normalizedSearch
-        ? options.filter((value) => value.toLowerCase().includes(normalizedSearch))
+        ? options.filter((value) => matchesSearch(value))
         : options;
 
       renderFilterToggle(filterKey);
 
+      const makeDisplay = (value) => filterKey === "state" ? getStateDisplayName(value) : value;
       const items = filteredOptions.length
         ? filteredOptions.map((value) => `
-            <label class="column-item" title="${escapeAttribute(value)}">
+            <label class="column-item" title="${escapeAttribute(makeDisplay(value))}">
               <input type="checkbox" data-filter-option="${escapeAttribute(filterKey)}" value="${escapeAttribute(value)}" ${selected.has(value) ? "checked" : ""}>
-              <span>${escapeHtml(value)}</span>
+              <span>${escapeHtml(makeDisplay(value))}</span>
             </label>
           `).join("")
         : `<div class="filter-menu-empty">Nenhuma opção encontrada.</div>`;
@@ -1574,6 +2079,16 @@
           const next = [...menu.querySelectorAll("input[data-filter-option]:checked")].map((item) => item.value);
           const preserved = state.filterSelections[filterKey].filter((value) => !filteredOptions.includes(value));
           state.filterSelections[filterKey] = [...new Set([...preserved, ...next])];
+          if (filterKey === "provider") {
+            if (!state.filterSelections.provider.length) {
+              state.providerDetail = "";
+              state.chartSelections.provider = "";
+              document.getElementById("providerDetail").hidden = true;
+            } else if (!state.filterSelections.provider.includes(state.providerDetail)) {
+              state.providerDetail = state.filterSelections.provider[0];
+              state.chartSelections.provider = state.providerDetail;
+            }
+          }
           renderFilterMenu(filterKey, menu.querySelector("input[data-filter-search]")?.value || "");
           applyFilters();
           menu.hidden = false;
@@ -1582,8 +2097,14 @@
 
       const searchInput = menu.querySelector("input[data-filter-search]");
       searchInput.addEventListener("input", () => {
-        renderFilterMenu(filterKey, searchInput.value);
+        const value = searchInput.value;
+        renderFilterMenu(filterKey, value);
         menu.hidden = false;
+        const restored = menu.querySelector("input[data-filter-search]");
+        if (restored) {
+          restored.focus();
+          restored.setSelectionRange(restored.value.length, restored.value.length);
+        }
       });
 
       menu.querySelectorAll("button[data-filter-action]").forEach((button) => {
@@ -1601,18 +2122,226 @@
       });
     }
 
+    function getDynamicFilterToggleId(col) {
+      return "dyn-toggle-" + col.replace(/[^a-zA-Z0-9_-]/g, "_");
+    }
+    function getDynamicFilterMenuId(col) {
+      return "dyn-menu-" + col.replace(/[^a-zA-Z0-9_-]/g, "_");
+    }
+    function getDynamicFilterContainerId(col) {
+      return "dyn-filter-" + col.replace(/[^a-zA-Z0-9_-]/g, "_");
+    }
+
+    function renderAddFilterMenu(searchTerm) {
+      const usedColumns = new Set();
+      const defaultColKeys = [...candidateStateColumns, "Prestador_1_Nome", ...candidateTrackerColumns];
+      defaultColKeys.forEach((c) => usedColumns.add(c.toLowerCase()));
+      state.dynamicFilterKeys.forEach((c) => usedColumns.add(c.toLowerCase()));
+
+      let available = state.vehicleColumns.filter((col) => {
+        const low = col.toLowerCase();
+        return !usedColumns.has(low) && !low.includes("endereco") && !low.includes("endereço") && !low.includes("latitude") && !low.includes("longitude") && !low.includes("cep") && !low.includes("cnpj") && !low.includes("cpf");
+      });
+
+      available = [...new Set(available)];
+
+      const term = (searchTerm || "").trim().toLowerCase();
+      if (term) {
+        available = available.filter((col) => col.toLowerCase().includes(term));
+      }
+
+      available.sort((a, b) => a.localeCompare(b, "pt-BR"));
+
+      ids.addFilterList.innerHTML = available.length
+        ? available.map((col) => `
+            <label class="column-item" title="${escapeAttribute(col)}">
+              <input type="checkbox" data-add-filter-col="${escapeAttribute(col)}">
+              <span>${escapeHtml(col)}</span>
+            </label>
+          `).join("")
+        : '<div class="filter-menu-empty">Nenhuma coluna disponível.</div>';
+
+      ids.addFilterList.querySelectorAll("input[data-add-filter-col]").forEach((input) => {
+        input.addEventListener("change", () => {
+          const col = input.dataset.addFilterCol;
+          if (input.checked) {
+            addDynamicFilter(col);
+          }
+          ids.addFilterMenu.hidden = true;
+          ids.addFilterSearch.value = "";
+        });
+      });
+    }
+
+    function addDynamicFilter(col) {
+      if (state.dynamicFilterKeys.includes(col)) return;
+      state.dynamicFilterKeys.push(col);
+      state.dynamicFilterSelections[col] = [];
+      state.dynamicFilterOptions[col] = uniqueNonEmpty(state.rows.map((row) => normalizeCell(row[col])));
+      renderDynamicFilters();
+      applyFilters();
+    }
+
+    function removeDynamicFilter(col) {
+      state.dynamicFilterKeys = state.dynamicFilterKeys.filter((k) => k !== col);
+      delete state.dynamicFilterSelections[col];
+      delete state.dynamicFilterOptions[col];
+      renderDynamicFilters();
+      applyFilters();
+    }
+
+    function renderDynamicFilters() {
+      const existing = ids.filtersGrid.querySelectorAll("[data-dynamic-filter]");
+      existing.forEach((el) => el.remove());
+
+      for (const col of state.dynamicFilterKeys) {
+        const div = document.createElement("div");
+        div.className = "filter";
+        div.id = getDynamicFilterContainerId(col);
+        div.setAttribute("data-dynamic-filter", col);
+        div.innerHTML = `
+          <label>${escapeHtml(col)}
+            <button type="button" class="btn-icon" style="font-size:14px;padding:2px 4px;vertical-align:middle;" title="Remover filtro" data-dyn-remove="${escapeAttribute(col)}">×</button>
+          </label>
+          <div class="filter-menu-wrap">
+            <button id="${getDynamicFilterToggleId(col)}" class="filter-multi-toggle" type="button"></button>
+            <div id="${getDynamicFilterMenuId(col)}" class="filter-menu" hidden></div>
+          </div>
+        `;
+        ids.filtersGrid.insertBefore(div, ids.filterActions);
+
+        div.querySelector("[data-dyn-remove]").addEventListener("click", () => {
+          removeDynamicFilter(col);
+        });
+
+        document.getElementById(getDynamicFilterToggleId(col)).addEventListener("click", () => {
+          toggleFilterMenu(col, true);
+        });
+
+        renderDynamicFilterToggle(col);
+        renderDynamicFilterMenu(col);
+      }
+    }
+
+    function renderDynamicFilterToggle(col) {
+      const button = document.getElementById(getDynamicFilterToggleId(col));
+      if (!button) return;
+      const selected = state.dynamicFilterSelections[col] || [];
+      const label = !selected.length
+        ? "Todos"
+        : selected.length === 1
+          ? selected[0]
+          : `${selected.length} selecionados`;
+
+      button.innerHTML = `
+        <span class="filter-multi-toggle-label">${escapeHtml(label)}</span>
+        <span class="filter-multi-toggle-meta">
+          ${selected.length ? `<span class="filter-multi-clear" role="button" tabindex="0" data-dyn-filter-clear="${escapeAttribute(col)}" aria-label="Limpar filtro">×</span>` : ""}
+          <span>▾</span>
+        </span>
+      `;
+
+      const clearBtn = button.querySelector("[data-dyn-filter-clear]");
+      if (clearBtn) {
+        clearBtn.addEventListener("click", (event) => {
+          event.stopPropagation();
+          state.dynamicFilterSelections[col] = [];
+          renderDynamicFilterMenu(col);
+          renderDynamicFilterToggle(col);
+          applyFilters();
+        });
+      }
+    }
+
+    function renderDynamicFilterMenu(col, searchTerm) {
+      const menu = document.getElementById(getDynamicFilterMenuId(col));
+      if (!menu) return;
+      const options = state.dynamicFilterOptions[col] || [];
+      const selected = new Set(state.dynamicFilterSelections[col] || []);
+      const normalizedSearch = (searchTerm || "").trim().toLowerCase();
+      const filteredOptions = normalizedSearch
+        ? options.filter((v) => v.toLowerCase().includes(normalizedSearch))
+        : options;
+
+      renderDynamicFilterToggle(col);
+
+      const items = filteredOptions.length
+        ? filteredOptions.map((value) => `
+            <label class="column-item" title="${escapeAttribute(value)}">
+              <input type="checkbox" data-dyn-filter-option="${escapeAttribute(col)}" value="${escapeAttribute(value)}" ${selected.has(value) ? "checked" : ""}>
+              <span>${escapeHtml(value)}</span>
+            </label>
+          `).join("")
+        : '<div class="filter-menu-empty">Nenhuma opção encontrada.</div>';
+
+      menu.innerHTML = `
+        <div class="column-menu-head">
+          <span>${escapeHtml(col)}</span>
+          <div class="column-menu-actions">
+            <button type="button" data-dyn-filter-action="all" data-dyn-filter-key="${escapeAttribute(col)}">Todas</button>
+            <button type="button" data-dyn-filter-action="clear" data-dyn-filter-key="${escapeAttribute(col)}">Limpar</button>
+          </div>
+        </div>
+        <input class="filter-menu-search" type="text" data-dyn-filter-search="${escapeAttribute(col)}" value="${escapeAttribute(searchTerm || "")}" placeholder="Buscar...">
+        <div class="filter-menu-list">${items}</div>
+      `;
+
+      menu.querySelectorAll("input[data-dyn-filter-option]").forEach((input) => {
+        input.addEventListener("change", () => {
+          const next = [...menu.querySelectorAll("input[data-dyn-filter-option]:checked")].map((item) => item.value);
+          const preserved = (state.dynamicFilterSelections[col] || []).filter((v) => !filteredOptions.includes(v));
+          state.dynamicFilterSelections[col] = [...new Set([...preserved, ...next])];
+          renderDynamicFilterMenu(col, menu.querySelector("input[data-dyn-filter-search]")?.value || "");
+          applyFilters();
+          menu.hidden = false;
+        });
+      });
+
+      const searchInput = menu.querySelector("input[data-dyn-filter-search]");
+      if (searchInput) {
+        searchInput.addEventListener("input", () => {
+          renderDynamicFilterMenu(col, searchInput.value);
+          menu.hidden = false;
+          const restored = menu.querySelector("input[data-dyn-filter-search]");
+          if (restored) {
+            restored.focus();
+            restored.setSelectionRange(restored.value.length, restored.value.length);
+          }
+        });
+      }
+
+      menu.querySelectorAll("button[data-dyn-filter-action]").forEach((button) => {
+        button.addEventListener("click", () => {
+          if (button.dataset.dynFilterAction === "all") {
+            state.dynamicFilterSelections[col] = [...(state.dynamicFilterOptions[col] || [])];
+          }
+          if (button.dataset.dynFilterAction === "clear") {
+            state.dynamicFilterSelections[col] = [];
+          }
+          renderDynamicFilterMenu(col, menu.querySelector("input[data-dyn-filter-search]")?.value || "");
+          applyFilters();
+          menu.hidden = false;
+        });
+      });
+    }
+
     function clearFilters(apply = true) {
       ids.searchInput.value = "";
       state.filterSelections.state = [];
       state.filterSelections.provider = [];
-      state.filterSelections.institution = [];
+      state.filterSelections.tracker = [];
       state.chartSelections.provider = "";
       state.chartSelections.consultor = "";
       state.chartSelections.regional = "";
       state.chartSelections.distance = "";
+      state.providerDetail = "";
+      for (const col of state.dynamicFilterKeys) {
+        state.dynamicFilterSelections[col] = [];
+        renderDynamicFilterMenu(col);
+      }
       renderFilterMenu("state");
       renderFilterMenu("provider");
-      renderFilterMenu("institution");
+      renderFilterMenu("tracker");
       if (apply) {
         applyFilters();
       } else {
@@ -1641,7 +2370,7 @@
       const query = ids.searchInput.value.trim().toLowerCase();
       const stateFilter = state.filterSelections.state;
       const providerFilter = state.filterSelections.provider;
-      const institutionFilter = state.filterSelections.institution;
+      const trackerFilter = state.filterSelections.tracker;
 
       return state.rows.filter((row) => {
         if (stateFilter.length && !stateFilter.includes(getVehicleState(row))) {
@@ -1652,8 +2381,15 @@
           return false;
         }
 
-        if (institutionFilter.length && !institutionFilter.includes(normalizeCell(firstValue(row, candidateInstitutionColumns)))) {
+        if (trackerFilter.length && !trackerFilter.includes(normalizeCell(firstValue(row, candidateTrackerColumns)))) {
           return false;
+        }
+
+        for (const col of state.dynamicFilterKeys) {
+          const sel = state.dynamicFilterSelections[col];
+          if (sel && sel.length && !sel.includes(normalizeCell(row[col]))) {
+            return false;
+          }
         }
 
         for (const [chartKey, selectedValue] of Object.entries(state.chartSelections)) {
@@ -1698,28 +2434,131 @@
       renderBarChart(ids.providerChart, providerChartStats, providerChartRows.length, {
         chartKey: "provider",
         alternate: false,
-        visibleCount: 15,
       });
       renderBarChart(ids.consultorChart, consultorChartStats, consultorChartRows.length, {
         chartKey: "consultor",
         alternate: false,
-        visibleCount: 10,
       });
       renderBarChart(ids.regionalChart, regionalChartStats, regionalChartRows.length, {
         chartKey: "regional",
         alternate: true,
-        visibleCount: 10,
       });
       renderDistanceChart(distanceStats, distanceChartRows.length);
       renderProviderTable(providerStats, rows.length);
       renderVehicleTable(rows);
-      renderBrazilMap(rows);
+      if (state.stateView === "map") {
+        renderBrazilMap(rows);
+      } else {
+        if (state.brazilMap) {
+          state.brazilMap.remove();
+          state.brazilMap = null;
+        }
+        renderBrazilChart(stateStats, rows.length);
+      }
+      renderProviderDetail();
 
       ids.providerChartMeta.textContent = `${providerChartStats.length} prestador(es)`;
       ids.stateChartMeta.textContent = `${stateStats.length} UF(s)`;
       ids.providerTableMeta.textContent = `${providerStats.length} linha(s)`;
       ids.vehicleTableMeta.textContent = `${rows.length} linha(s) • ${state.vehicleVisibleColumns.length} coluna(s)`;
     }
+
+    function renderProviderDetail() {
+      const panel = document.getElementById("providerDetail");
+      const name = state.providerDetail;
+      if (!name) {
+        panel.hidden = true;
+        return;
+      }
+
+      const row = state.rows.find((r) => normalizeCell(r["Prestador_1_Nome"]) === name);
+      if (!row) {
+        panel.hidden = true;
+        return;
+      }
+
+      const pfx = "Prestador_1_";
+
+      function pCell(key) {
+        return normalizeCell(row[pfx + key] || "");
+      }
+
+      const cnpj = pCell("CNPJ_CPF");
+      const titular = pCell("Contato");
+      const endereco = pCell("Endereco");
+      const cidade = pCell("Cidade");
+      const uf = pCell("UF") || pCell("uf");
+      const obs = pCell("Observacao");
+      const estado = uf;
+
+      let providerPhone = pCell("Telefone") || pCell("Telefone_2");
+      let providerPhoneDigits = providerPhone ? providerPhone.replace(/\D/g, "") : "";
+      if (providerPhoneDigits.length >= 10 && providerPhoneDigits.length <= 11) {
+        if (!providerPhoneDigits.startsWith("55")) providerPhoneDigits = "55" + providerPhoneDigits;
+      }
+      const providerWaUrl = providerPhoneDigits.length >= 10 ? `https://wa.me/${providerPhoneDigits}` : "";
+
+      const whatsappSvg = `<svg viewBox="0 0 24 24" fill="white" width="18" height="18"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
+
+      const googleMapsUrl = endereco ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}` : "";
+
+      const fields = [
+        { label: "CPF / CNPJ", value: cnpj },
+        { label: "Titular", value: titular },
+        { label: "Estado", value: estado },
+        { label: "Endereço", value: endereco, href: googleMapsUrl },
+        { label: "Observação", value: obs },
+      ];
+
+      panel.innerHTML = `
+        <div class="provider-detail-card">
+          <div class="provider-detail-header">
+            <h3>${escapeHtml(name)}</h3>
+            <button class="provider-detail-close" id="providerDetailClose" type="button" aria-label="Fechar">×</button>
+          </div>
+          ${providerWaUrl ? `
+            <a class="provider-whatsapp-link" href="${escapeAttribute(providerWaUrl)}" target="_blank" rel="noreferrer noopener">
+              <span class="provider-whatsapp-icon">${whatsappSvg}</span>
+              Falar com prestador
+            </a>
+          ` : providerPhone ? `<div style="font-weight:700">${escapeHtml(providerPhone)}</div>` : ""}
+          <div class="provider-detail-grid">
+            ${fields.filter((f) => f.value).map((f) => `
+              <div class="provider-detail-field">
+                <span class="provider-detail-field-label">${escapeHtml(f.label)}</span>
+                <span class="provider-detail-field-value">${f.href ? `<a href="${escapeAttribute(f.href)}" target="_blank" rel="noreferrer noopener">${escapeHtml(f.value)}</a>` : escapeHtml(f.value)}</span>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+      panel.hidden = false;
+
+      const closeBtn = panel.querySelector("#providerDetailClose");
+      if (closeBtn) {
+        closeBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          closeProviderDetail();
+        });
+      }
+    }
+
+    function closeProviderDetail() {
+      state.providerDetail = "";
+      state.chartSelections.provider = "";
+      state.filterSelections.provider = [];
+      renderFilterMenu("provider");
+      document.getElementById("providerDetail").hidden = true;
+      applyFilters();
+    }
+
+    document.addEventListener("click", (e) => {
+      const panel = document.getElementById("providerDetail");
+      if (panel.hidden) return;
+      if (e.target === panel) {
+        closeProviderDetail();
+      }
+    });
 
     function renderKpis(rows, providerStats, stateStats) {
       ids.kpiPlacas.textContent = formatNumber(rows.length);
@@ -1816,6 +2655,7 @@
         alternate = false,
         chartKey = "",
         visibleCount = 0,
+        labelSub = "",
       } = options;
 
       if (!items.length) {
@@ -1835,7 +2675,7 @@
         const classClickable = chartKey ? ' clickable' : '';
         return `
           <div class="bar-row${classClickable}${classActive}" data-chart-key="${escapeAttribute(chartKey)}" data-chart-value="${escapeAttribute(item.label)}">
-            <div class="bar-label" title="${escapeHtml(item.label)}">${escapeHtml(item.label)}</div>
+            <div class="bar-label" title="${escapeHtml(item.label)}">${escapeHtml(item.label)}${labelSub && item[labelSub] ? ` <span style="font-weight:400;font-size:11px;color:var(--muted)">— ${escapeHtml(item[labelSub])}</span>` : ""}</div>
             <div class="bar-track">
               <div class="bar-fill ${alternate ? "alt" : ""}" style="width:${percentOfMax}%"></div>
             </div>
@@ -1846,13 +2686,24 @@
 
       if (chartKey) {
         container.querySelectorAll('.bar-row.clickable').forEach((row) => {
-          row.addEventListener('click', () => {
+          row.addEventListener('click', (e) => {
+            e.stopPropagation();
             const selectedChartKey = row.dataset.chartKey;
             const selectedValue = row.dataset.chartValue;
             if (state.chartSelections[selectedChartKey] === selectedValue) {
               state.chartSelections[selectedChartKey] = "";
             } else {
               state.chartSelections[selectedChartKey] = selectedValue;
+            }
+            if (selectedChartKey === "provider") {
+              if (state.chartSelections.provider) {
+                state.filterSelections.provider = [state.chartSelections.provider];
+                renderFilterMenu("provider");
+              } else {
+                state.filterSelections.provider = [];
+                renderFilterMenu("provider");
+              }
+              state.providerDetail = state.chartSelections.provider;
             }
             applyFilters();
           });
@@ -1898,6 +2749,10 @@
       }).join("") || `<tr><td colspan="5" class="muted">Nenhum dado disponível.</td></tr>`;
 
       ids.providerTable.innerHTML = `${header}<tbody>${bodyRows}</tbody>`;
+      applyAdaptiveTableLayout(ids.providerTable, columns.length, {
+        compactLimit: 5,
+        minWidth: "136px",
+      });
       ids.providerTable.querySelectorAll("th[data-provider-sort]").forEach((th) => {
         th.addEventListener("click", () => {
           const key = th.dataset.providerSort;
@@ -1910,13 +2765,14 @@
           renderDashboard();
         });
       });
+      enableColumnResize(ids.providerTable);
     }
 
     function renderVehicleTable(rows) {
-      const requested = state.vehicleVisibleColumns.filter((col) => state.vehicleColumns.includes(col) || col === vehicleRouteColumn);
-      const finalColumns = requested.length ? requested : [...getDefaultVisibleVehicleColumns(state.vehicleColumns), vehicleRouteColumn];
+      const requested = state.vehicleVisibleColumns.filter((col) => state.vehicleColumns.includes(col) || col === vehicleRouteColumn || col === vehicleWhatsAppColumn);
+      const finalColumns = requested.length ? requested : [...getDefaultVisibleVehicleColumns(state.vehicleColumns), vehicleRouteColumn, vehicleWhatsAppColumn];
 
-      const sortableColumns = finalColumns.filter((col) => col !== vehicleRouteColumn);
+      const sortableColumns = finalColumns.filter((col) => col !== vehicleRouteColumn && col !== vehicleWhatsAppColumn);
       if (!sortableColumns.includes(state.sortVehicle.key)) {
         state.sortVehicle.key = sortableColumns[0] || "Placa";
         state.sortVehicle.direction = "asc";
@@ -1926,23 +2782,32 @@
       const limited = sorted.slice(0, 300);
 
       const header = `<thead><tr>${finalColumns.map((col) => {
-        if (col === vehicleRouteColumn) {
-          return `<th><span class="sortable-head">${escapeHtml(col)}</span></th>`;
+        if (col === vehicleRouteColumn || col === vehicleWhatsAppColumn) {
+          return `<th class="${escapeAttribute(getVehicleColumnClass(col))}"><span class="sortable-head">${escapeHtml(col)}</span></th>`;
         }
         const isActive = state.sortVehicle.key === col;
         const isAsc = state.sortVehicle.direction === "asc";
         const indicator = isActive ? (isAsc ? "▲" : "▼") : "↕";
         const ariaSort = isActive ? (isAsc ? "ascending" : "descending") : "none";
-        return `<th data-vehicle-sort="${escapeAttribute(col)}" aria-sort="${ariaSort}"><span class="sortable-head">${escapeHtml(getVehicleColumnLabel(col))}<span class="sort-indicator">${indicator}</span></span></th>`;
+        return `<th class="${escapeAttribute(getVehicleColumnClass(col))}" data-vehicle-sort="${escapeAttribute(col)}" aria-sort="${ariaSort}"><span class="sortable-head">${escapeHtml(getVehicleColumnLabel(col))}<span class="sort-indicator">${indicator}</span></span></th>`;
       }).join("")}</tr></thead>`;
       const bodyRows = limited.map((row) => `
         <tr>
-          ${finalColumns.map((col) => `<td>${renderVehicleCell(row, col)}</td>`).join("")}
+          ${finalColumns.map((col) => `<td class="${escapeAttribute(getVehicleColumnClass(col))}">${renderVehicleCell(row, col)}</td>`).join("")}
         </tr>
       `).join("") || `<tr><td colspan="${finalColumns.length || 1}" class="muted">Nenhuma linha disponível.</td></tr>`;
 
       ids.vehicleTable.innerHTML = `${header}<tbody>${bodyRows}</tbody>`;
+      applyAdaptiveTableLayout(ids.vehicleTable, finalColumns.length, {
+        compactLimit: compactVehicleColumnLimit,
+        minWidth: "120px",
+      });
       renderVehicleColumnSelector();
+      ids.vehicleTable.querySelectorAll("[data-copy-value]").forEach((element) => {
+        element.addEventListener("click", async () => {
+          await copyTextToClipboard(element.dataset.copyValue || "");
+        });
+      });
       ids.vehicleTable.querySelectorAll("th[data-vehicle-sort]").forEach((th) => {
         th.addEventListener("click", () => {
           const key = th.dataset.vehicleSort;
@@ -1955,34 +2820,67 @@
           renderDashboard();
         });
       });
+      enableColumnResize(ids.vehicleTable);
     }
 
     function getVehicleColumnLabel(col) {
+      if (col === "Prestador_1_Nome") {
+        return "Prestador";
+      }
+      if (col === "Prestador_1_Nome_Legal") {
+        return "Nome 2";
+      }
+      if (col === "Prestador_1_Nome_Fantasia") {
+        return "Nome Fantasia";
+      }
+      if (col === "Prestador_1_Endereco") {
+        return "Endereço";
+      }
       if (col === "Prestador_1_Distancia_km" || col === "Prestador_1_Dist_km") {
         return "Distância (KM)";
       }
       return col;
     }
 
+    function getVehicleColumnClass(col) {
+      if (col === vehicleRouteColumn) {
+        return "vehicle-col-route";
+      }
+      if (col === vehicleWhatsAppColumn) {
+        return "vehicle-col-whatsapp";
+      }
+      if (isAddressColumn(col)) {
+        return "vehicle-col-address";
+      }
+      if (col === "Associado" || col === "associado") {
+        return "vehicle-col-associated";
+      }
+      if (col === "Consultor" || col === "consultor") {
+        return "vehicle-col-consultant";
+      }
+      if (col === "Instituição" || col === "Instituicao" || col === "instituicao") {
+        return "vehicle-col-institution";
+      }
+      if (col === "Prestador_1_Nome") {
+        return "vehicle-col-provider";
+      }
+      return "";
+    }
+
+    function isAddressColumn(col) {
+      return /endereco|endereço/i.test(String(col || ""));
+    }
+
     function normalizeRouteAddress(address) {
       return normalizeCell(address)
         .replace(/\bCEP\s*:\s*/gi, "")
-        .replace(/,\s*([^,]*?)\s*-\s*(?:AP|APT|APTO|APARTAMENTO|BLC|BLOCO|QD|QUADRA|LT|LOTE|CASA|SALA|FUNDOS)\b[^,]*/gi, (_, kept) => {
-          const cleaned = normalizeCell(kept).replace(/\bS\/?N\b/gi, "");
-          return cleaned ? `, ${cleaned}` : ",";
-        })
-        .replace(/,\s*(?:AP|APT|APTO|APARTAMENTO|BLC|BLOCO|QD|QUADRA|LT|LOTE|CASA|SALA|FUNDOS)\b[^,]*/gi, "")
         .replace(/\bS\/?N\b/gi, "")
-        .replace(/\bQD\b[^,\-]*/gi, "")
-        .replace(/\bLT\b[^,\-]*/gi, "")
-        .replace(/\b(QUADRA|LOTE|BLOCO|APTO|APARTAMENTO|SALA|FUNDOS|CASA)\b[^,\-]*/gi, "")
         .replace(/(\d{2})\.(\d{3})-?(\d{3})/g, "$1$2-$3")
         .replace(/\s*-\s*,/g, ", ")
         .replace(/\s+-\s+/g, " - ")
         .replace(/\s*,\s*/g, ", ")
         .replace(/,{2,}/g, ",")
         .replace(/,\s*,/g, ", ")
-        .replace(/,\s*([A-Z]{2})\s*,\s*(\d{5}-?\d{3})$/i, " - $1, $2")
         .replace(/\s{2,}/g, " ")
         .replace(/^[-,\s]+|[-,\s]+$/g, "")
         .trim();
@@ -2000,23 +2898,128 @@
         origin: originValue,
         destination: destinationValue,
         travelmode: "driving",
+        region: "br",
       });
       return `https://www.google.com/maps/dir/?${params.toString()}`;
     }
 
+    function buildWhatsAppVehicleLink(row) {
+      const phoneCandidates = [
+        "Telefone 1", "Fone(1)", "fone_1", "fone1",
+        "Telefone 2", "Fone(2)", "fone_2", "fone2",
+        "Telefone", "Fone", "fone",
+        "Prestador_1_Telefone", "Prestador_1_Telefone_2", "Prestador_1_Contato",
+      ];
+      let phoneCol = null;
+      for (const candidate of phoneCandidates) {
+        if (state.vehicleColumns.includes(candidate)) {
+          const value = normalizeCell(row[candidate]);
+          if (value) {
+            phoneCol = candidate;
+            break;
+          }
+        }
+      }
+      if (!phoneCol) {
+        phoneCol = state.vehicleColumns.find((c) =>
+          ["contato", "telefone", "celular", "tel", "whatsapp", "whats", "fone", "phone"]
+            .some((p) => c.toLowerCase().includes(p.toLowerCase()))
+        );
+      }
+      const rawPhone = phoneCol ? normalizeCell(row[phoneCol]) : "";
+      let digits = rawPhone.replace(/\D/g, "");
+      if (digits.length === 10 || digits.length === 11) {
+        if (!digits.startsWith("55")) digits = "55" + digits;
+      }
+      if (digits.length < 12) return "";
+
+      const associateName = normalizeCell(firstValue(row, ["Associado", "associado"])) || "";
+      const providerName = normalizeCell(row["Prestador_1_Nome"]) || "";
+      const providerAddress = normalizeCell(row["Prestador_1_Endereco"]) || "";
+
+      let text = "Olá";
+      if (associateName) text += ` ${associateName}`;
+      text += ", você tem a instalação pendente do rastreador.";
+      if (providerName) {
+        text += ` A oficina mais próxima de você é a ${providerName}`;
+        if (providerAddress) text += ` e fica no endereço ${providerAddress}`;
+      }
+      text += ". Compareça a oficina em até 5 dias.";
+
+      const waUrl = `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
+      return `<a class="map-route-link whatsapp-link" href="${escapeAttribute(waUrl)}" target="_blank" rel="noreferrer noopener" title="Falar no WhatsApp">${whatsappSvgSmall}</a>`;
+    }
+
+    const whatsappSvgSmall = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
+
     function renderVehicleCell(row, col) {
       if (col === vehicleRouteColumn) {
-        const href = buildGoogleMapsRouteUrl(row["Endereço"], row["Prestador_1_Endereco"]);
+        const origin = firstValue(row, ["Endereço", "endereco", "endereco_completo"]);
+        const href = buildGoogleMapsRouteUrl(origin, row["Prestador_1_Endereco"]);
         if (!href) {
           return "-";
         }
         return `<a class="map-route-link" href="${escapeAttribute(href)}" target="_blank" rel="noreferrer noopener">Ver no mapa</a>`;
       }
+      if (col === vehicleWhatsAppColumn) {
+        return buildWhatsAppVehicleLink(row);
+      }
 
-      return escapeHtml(normalizeCell(row[col]) || "-");
+      const value = getVehicleCellValue(row, col) || "-";
+
+      if (isAddressColumn(col) && value !== "-") {
+        return `<button type="button" class="vehicle-copy-text vehicle-cell-truncate" data-copy-value="${escapeAttribute(value)}" title="${escapeAttribute(value)}&#10;&#10;Clique para copiar">${escapeHtml(value)}</button>`;
+      }
+
+      return `<span class="vehicle-cell-truncate" title="${escapeAttribute(value)}">${escapeHtml(value)}</span>`;
     }
 
-    function renderEmpty(message = "Importe uma pasta com CSVs para iniciar a análise.") {
+    function getVehicleCellValue(row, col) {
+      if (col === "Placa" || col === "placa") {
+        return normalizeCell(row["Placa"]) || normalizeCell(row["placa"]) || normalizeCell(row["Chassi"]) || normalizeCell(row["chassi"]);
+      }
+      return normalizeCell(row[col]);
+    }
+
+    async function copyTextToClipboard(value) {
+      if (!value) {
+        return;
+      }
+
+      try {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(value);
+          return;
+        }
+      } catch (error) {
+        console.warn("Falha ao copiar com clipboard API:", error);
+      }
+
+      const helper = document.createElement("textarea");
+      helper.value = value;
+      helper.setAttribute("readonly", "");
+      helper.style.position = "absolute";
+      helper.style.left = "-9999px";
+      document.body.appendChild(helper);
+      helper.select();
+      document.execCommand("copy");
+      document.body.removeChild(helper);
+    }
+
+    function applyAdaptiveTableLayout(table, columnCount, options = {}) {
+      const {
+        compactLimit = 0,
+        minWidth = "120px",
+      } = options;
+
+      table.className = columnCount > compactLimit
+        ? "adaptive-table-wide"
+        : "adaptive-table-compact";
+      table.style.setProperty("--table-col-count", String(columnCount));
+      table.style.setProperty("--table-col-min-width", minWidth);
+    }
+
+    function renderEmpty(message = "Aguardando dados do resultado final.") {
       ids.providerChart.innerHTML = `<div class="empty">${escapeHtml(message)}</div>`;
       if (state.brazilMap) {
         state.brazilMap.remove();
@@ -2057,27 +3060,34 @@
     }
 
     function exportPdfView() {
-      const providerTablePanel = document.querySelector('h3:has-text("Prestadores com Mais Placas")');
-      let hiddenElements = [];
-      
-      if (ids.providerTable && ids.providerTable.closest('.panel')) {
-        const panel = ids.providerTable.closest('.panel');
-        const heading = panel.previousElementSibling;
-        if (heading && heading.tagName === 'H3') {
-          panel.style.display = 'none';
-          if (heading) heading.style.display = 'none';
-          hiddenElements.push(panel, heading);
-        } else {
-          panel.style.display = 'none';
-          hiddenElements.push(panel);
-        }
-      }
-      
       window.print();
-      
-      hiddenElements.forEach((el) => {
-        el.style.display = '';
-      });
+    }
+
+    async function exportImageView() {
+      if (typeof html2canvas !== "function") {
+        window.alert("Biblioteca de captura de imagem não disponível.");
+        return;
+      }
+
+      try {
+        const canvas = await html2canvas(document.body, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: "#f4efe8",
+          onclone: (doc) => {
+            const hidden = doc.querySelectorAll('[style*="display: none"], [hidden]');
+            hidden.forEach((el) => el.remove());
+          },
+        });
+
+        const link = document.createElement("a");
+        link.download = `dashboard_prestadores_${new Date().toISOString().split("T")[0]}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      } catch (err) {
+        window.alert("Erro ao gerar imagem: " + err.message);
+      }
     }
 
     function rowFromHeaders(headers, values) {
@@ -2099,11 +3109,11 @@
     }
 
     function getVehicleState(row) {
-      return normalizeCell(firstValue(row, candidateStateColumns)) || extractUfFromAddress(normalizeCell(row["Endereço"]));
+      return normalizeCell(firstValue(row, candidateStateColumns)) || extractUfFromAddress(normalizeCell(firstValue(row, ["Endereço", "endereco", "endereco_completo"])));
     }
 
     function extractUfFromAddress(address) {
-      const match = String(address || "").match(/,\s*([A-Z]{2})\s*,\s*CEP/i);
+      const match = String(address || "").match(/,\s*([A-Z]{2})\s*(?:,\s*CEP)?[\s:]*\d/i);
       return match ? match[1].toUpperCase() : "";
     }
 
@@ -2146,8 +3156,19 @@
     }
 
     function compareRows(a, b, key, direction) {
-      const leftRaw = normalizeCell(a[key]);
-      const rightRaw = normalizeCell(b[key]);
+      const leftRaw = getVehicleCellValue(a, key);
+      const rightRaw = getVehicleCellValue(b, key);
+
+      if (!leftRaw && !rightRaw) {
+        return 0;
+      }
+      if (!leftRaw) {
+        return 1;
+      }
+      if (!rightRaw) {
+        return -1;
+      }
+
       const leftNumber = parseNumber(leftRaw);
       const rightNumber = parseNumber(rightRaw);
       let result;
@@ -2232,6 +3253,54 @@
       return row;
     }
 
+    function exportXmlView() {
+      if (!state.filteredRows.length) return;
+      const headers = state.vehicleColumns;
+      const rows = state.filteredRows;
+      const esc = (v) => String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+      let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+ <Worksheet ss:Name="Veiculos">
+  <Table>\n`;
+
+      xml += "    <Row>\n";
+      for (const h of headers) {
+        xml += `      <Cell><Data ss:Type="String">${esc(h)}</Data></Cell>\n`;
+      }
+      xml += "    </Row>\n";
+
+      for (const row of rows) {
+        xml += "    <Row>\n";
+        for (const h of headers) {
+          const val = row[h];
+          const num = String(val ?? "").replace(",", ".");
+          const isNum = /^\d+(\.\d+)?$/.test(num.trim());
+          xml += `      <Cell><Data ss:Type="${isNum ? "Number" : "String"}">${isNum ? num.trim() : esc(val)}</Data></Cell>\n`;
+        }
+        xml += "    </Row>\n";
+      }
+
+      xml += `  </Table>
+ </Worksheet>
+</Workbook>`;
+
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, "0");
+      const ts = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}h${pad(now.getMinutes())}`;
+      const blob = new Blob([xml], { type: "application/vnd.ms-excel;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `veiculos_${ts}.xml`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
     function toCsv(rows, headers) {
       const escape = (value) => {
         const stringValue = normalizeCell(value);
@@ -2264,7 +3333,7 @@
       const content = document.getElementById("providerTableContent");
       const toggle = document.getElementById("providerTableToggle");
       const isHidden = content.hasAttribute("hidden");
-      
+
       if (isHidden) {
         content.removeAttribute("hidden");
         toggle.setAttribute("aria-expanded", "true");
@@ -2273,6 +3342,14 @@
         toggle.setAttribute("aria-expanded", "false");
       }
     }
+
+    document.addEventListener("click", (event) => {
+      const head = document.getElementById("providerTableHead");
+      const pill = document.getElementById("providerTableMeta");
+      if (head && head.contains(event.target) && !pill.contains(event.target)) {
+        toggleProviderTable();
+      }
+    });
 
     async function loadBrazilStatesGeoJson() {
       if (state.brazilStatesGeoJson) {
@@ -2289,28 +3366,40 @@
     }
 
     function buildBrazilLegend(getColor, maxCount) {
-      const legend = L.control({ position: "bottomright" });
+      const legend = L.control({ position: "bottomleft" });
 
       legend.onAdd = function onAdd() {
         const div = L.DomUtil.create("div", "map-legend");
-        const steps = maxCount > 0
-          ? [0, Math.max(1, Math.ceil(maxCount * 0.25)), Math.max(1, Math.ceil(maxCount * 0.5)), Math.max(1, Math.ceil(maxCount * 0.75)), maxCount]
-          : [0];
+
+        if (maxCount <= 0) {
+          div.innerHTML = `<strong>Placas por UF</strong><div class="map-legend-scale"><div class="map-legend-item"><span class="map-legend-label">0</span><span class="map-legend-swatch" style="background:${getColor(0)}"></span></div></div>`;
+          return div;
+        }
+
+        const q1 = Math.max(1, Math.ceil(maxCount * 0.25));
+        const q2 = Math.max(1, Math.ceil(maxCount * 0.5));
+        const q3 = Math.max(1, Math.ceil(maxCount * 0.75));
+
+        const buckets = [
+          { label: "0", value: 0 },
+        ];
+
+        if (q1 > 1) {
+          buckets.push({ label: `1–${q1 - 1}`, value: Math.max(1, Math.floor((1 + q1 - 1) / 2)) });
+        }
+        buckets.push({ label: q2 > q1 ? `${q1}–${q2 - 1}` : `${q1}`, value: q1 });
+        buckets.push({ label: q3 > q2 ? `${q2}–${q3 - 1}` : `${q2}`, value: q2 });
+        buckets.push({ label: `${q3}+`, value: maxCount });
 
         div.innerHTML = `
           <strong>Placas por UF</strong>
           <div class="map-legend-scale">
-            ${steps.map((value, index) => {
-              const label = index === 0
-                ? "Sem placas no recorte"
-                : `${value} placa${value === 1 ? "" : "s"} ou mais`;
-              return `
-                <div class="map-legend-row">
-                  <span class="map-legend-swatch" style="background:${getColor(value)}"></span>
-                  <span>${label}</span>
-                </div>
-              `;
-            }).join("")}
+            ${buckets.map((b) => `
+              <div class="map-legend-item">
+                <span class="map-legend-label">${b.label}</span>
+                <span class="map-legend-swatch" style="background:${getColor(b.value)}"></span>
+              </div>
+            `).join("")}
           </div>
         `;
         return div;
@@ -2319,8 +3408,55 @@
       return legend;
     }
 
+    function renderBrazilChart(stats, total) {
+      const container = document.getElementById("stateMapView");
+      container.className = "chart-list";
+      container.removeAttribute("style");
+      const items = stats.map((s) => ({ label: s.label, placas: s.placas }));
+
+      if (!items.length) {
+        container.innerHTML = '<div class="empty">Nenhum dado para exibir neste recorte.</div>';
+        return;
+      }
+
+      const max = Math.max(...items.map((item) => item.placas), 1);
+      const selectedStates = state.filterSelections.state;
+
+      container.innerHTML = items.map((item) => {
+        const percentOfMax = (item.placas / max) * 100;
+        const percentOfTotal = total ? (item.placas / total) * 100 : 0;
+        const isActive = selectedStates.includes(item.label);
+        return `
+          <div class="bar-row clickable${isActive ? ' filter-active' : ''}" data-chart-value="${escapeAttribute(item.label)}">
+            <div class="bar-label">${escapeHtml(item.label)}</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width:${percentOfMax}%"></div>
+            </div>
+            <div class="bar-value">${formatNumber(item.placas)} • ${formatNumber(percentOfTotal, 1)}%</div>
+          </div>
+        `;
+      }).join("");
+
+      container.querySelectorAll('.bar-row.clickable').forEach((row) => {
+        row.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const uf = row.dataset.chartValue;
+          const idx = state.filterSelections.state.indexOf(uf);
+          if (idx >= 0) {
+            state.filterSelections.state.splice(idx, 1);
+          } else {
+            state.filterSelections.state.push(uf);
+          }
+          state.filterSelections.state.sort((a, b) => a.localeCompare(b, "pt-BR"));
+          renderFilterMenu("state");
+          applyFilters();
+        });
+      });
+    }
+
     async function renderBrazilMap(rows) {
       const mapContainer = document.getElementById("stateMapView");
+      mapContainer.className = "map-container map-container--brazil";
       mapContainer.innerHTML = '<div class="empty">Carregando mapa do Brasil...</div>';
 
       const stateCount = {};
@@ -2409,12 +3545,59 @@
           },
         }).addTo(map);
 
-        map.fitBounds(layer.getBounds(), { padding: [2, 2] });
+        map.fitBounds(layer.getBounds(), { padding: [2, 2, 2, 42] });
         map.setZoom(map.getZoom() + 0.25);
         buildBrazilLegend(getColor, maxCount).addTo(map);
       } catch (error) {
         mapContainer.innerHTML = `<div class="empty">${escapeHtml(error.message || "Nao foi possivel carregar o mapa do Brasil.")}</div>`;
       }
+    }
+    function enableColumnResize(table) {
+      if (!table) return;
+      const ths = table.querySelectorAll("th");
+      ths.forEach((th) => {
+        const handle = document.createElement("div");
+        handle.className = "resize-handle";
+        th.style.position = "relative";
+        th.appendChild(handle);
+
+        let isResizing = false;
+        let startX, startWidth;
+
+        handle.addEventListener("mousedown", (e) => {
+          isResizing = true;
+          startX = e.clientX;
+          startWidth = th.getBoundingClientRect().width;
+          handle.classList.add("resizing");
+          document.body.style.cursor = "col-resize";
+          document.body.style.userSelect = "none";
+          e.preventDefault();
+          e.stopPropagation();
+        });
+
+        document.addEventListener("mousemove", (e) => {
+          if (!isResizing) return;
+          const diff = e.clientX - startX;
+          const newWidth = Math.max(50, startWidth + diff);
+          const colIndex = Array.from(th.parentElement.children).indexOf(th);
+          table.querySelectorAll("tr").forEach((tr) => {
+            const cell = tr.children[colIndex];
+            if (cell) {
+              cell.style.width = newWidth + "px";
+              cell.style.minWidth = newWidth + "px";
+              cell.style.maxWidth = newWidth + "px";
+            }
+          });
+        });
+
+        document.addEventListener("mouseup", () => {
+          if (!isResizing) return;
+          isResizing = false;
+          handle.classList.remove("resizing");
+          document.body.style.cursor = "";
+          document.body.style.userSelect = "";
+        });
+      });
     }
   </script>
 </body>
