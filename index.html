@@ -1347,7 +1347,7 @@
       <div class="toolbar">
         <div class="hero-note" id="sourceSummary">Nenhuma pasta importada.</div>
         <div class="export-menu-wrap">
-          <button class="btn" type="button" id="exportBtn" title="Exportar tabela de veículos">Exportar</button>
+          <button class="btn btn-soft" type="button" id="exportBtn" title="Exportar tabela de veículos">Exportar</button>
           <div class="export-menu" id="exportMenu" hidden>
             <button type="button" onclick="exportFilteredView()">CSV</button>
             <button type="button" onclick="exportXmlView()">XML (Excel)</button>
@@ -1630,8 +1630,12 @@
     const candidateConsultorColumns = ["Consultor", "consultor"];
     const candidateRegionalColumns = ["Regional", "regional"];
     const distanceBucketDefinitions = [
-      { label: "0-30 km", min: 0, max: 30 },
-      { label: "31-50 km", min: 31, max: 50 },
+      { label: "0-5 km", min: 0, max: 5 },
+      { label: "5-10 km", min: 5, max: 10 },
+      { label: "10-15 km", min: 10, max: 15 },
+      { label: "15-20 km", min: 15, max: 20 },
+      { label: "20-30 km", min: 20, max: 30 },
+      { label: "30-50 km", min: 30, max: 50 },
       { label: "51-100 km", min: 51, max: 100 },
       { label: "101-250 km", min: 101, max: 250 },
       { label: "251-500 km", min: 251, max: 500 },
