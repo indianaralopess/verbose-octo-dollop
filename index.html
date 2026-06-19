@@ -1454,6 +1454,19 @@
       </article>
     </section>
 
+    <section class="grid">
+      <article class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Veículos por Tipo</h2>
+            <p>Distribuição dos veículos entre Carro, Moto e Caminhão no recorte atual.</p>
+          </div>
+          <span class="pill" id="tipoChartMeta">0 tipos</span>
+        </div>
+        <div class="panel-body chart-list" id="tipoChart"></div>
+      </article>
+    </section>
+
     <section class="grid three-col">
       <article class="panel">
         <div class="panel-head">
@@ -1600,6 +1613,8 @@
       consultorChart: document.getElementById("consultorChart"),
       regionalChart: document.getElementById("regionalChart"),
       distanceChart: document.getElementById("distanceChart"),
+      tipoChartMeta: document.getElementById("tipoChartMeta"),
+      tipoChart: document.getElementById("tipoChart"),
       providerTableMeta: document.getElementById("providerTableMeta"),
       providerTable: document.getElementById("providerTable"),
       vehicleTableMeta: document.getElementById("vehicleTableMeta"),
@@ -1653,6 +1668,7 @@
       "instituicao",
       "associado",
       "uf",
+      "Tipo",
       "endereco",
       "regional",
       "consultor",
@@ -2434,7 +2450,13 @@
       const regionalChartStats = buildGroupedStats(regionalChartRows, (row) => normalizeCell(firstValue(row, candidateRegionalColumns)) || "Não informado");
       const distanceStats = buildDistanceBuckets(distanceChartRows);
 
+      const tipoStats = buildGroupedStats(rows, (row) => {
+        const tipo = normalizeCell(row["Tipo"]) || normalizeCell(row["tipo"]);
+        return tipo || "Não informado";
+      });
+
       renderKpis(rows, providerStats, stateStats);
+      renderTipoChart(ids.tipoChart, tipoStats, rows.length);
       renderBarChart(ids.providerChart, providerChartStats, providerChartRows.length, {
         chartKey: "provider",
         alternate: false,
@@ -2463,6 +2485,7 @@
 
       ids.providerChartMeta.textContent = `${providerChartStats.length} prestador(es)`;
       ids.stateChartMeta.textContent = `${stateStats.length} UF(s)`;
+      ids.tipoChartMeta.textContent = `${tipoStats.length} tipo(s)`;
       ids.providerTableMeta.textContent = `${providerStats.length} linha(s)`;
       ids.vehicleTableMeta.textContent = `${rows.length} linha(s) • ${state.vehicleVisibleColumns.length} coluna(s)`;
     }
@@ -2722,6 +2745,37 @@
       });
     }
 
+    function renderTipoChart(container, items, total) {
+      const colors = { Carro: "var(--accent)", Moto: "var(--accent-2)", Caminhão: "#7c5ba0" };
+      if (!items.length) {
+        container.innerHTML = '<div class="empty">Nenhum dado para exibir neste recorte.</div>';
+        return;
+      }
+      const segments = items.map((item) => {
+        const pct = total ? (item.placas / total) * 100 : 0;
+        return {
+          label: item.label,
+          placas: item.placas,
+          pct,
+          color: colors[item.label] || "var(--accent)",
+        };
+      });
+      container.innerHTML = `
+        <div class="bar-track" style="height:32px;margin-bottom:16px">
+          ${segments.map((s) => `<div class="bar-fill" style="display:inline-block;width:${s.pct}%;height:100%;background:${s.color};float:left" title="${escapeHtml(s.label)}: ${formatNumber(s.placas)} (${formatNumber(s.pct,1)}%)"></div>`).join("")}
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:16px">
+          ${segments.map((s) => `
+            <div style="display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:700">
+              <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${s.color};flex:none"></span>
+              <span>${escapeHtml(s.label)}</span>
+              <span style="color:var(--muted);font-weight:400">${formatNumber(s.placas)} • ${formatNumber(s.pct,1)}%</span>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
     function renderProviderTable(providerStats, total) {
       const columns = [
         { key: "label", label: "Prestador" },
@@ -2843,6 +2897,9 @@
       if (col === "Prestador_1_Distancia_km" || col === "Prestador_1_Dist_km") {
         return "Distância (KM)";
       }
+      if (col === "Tipo") {
+        return "Tipo";
+      }
       return col;
     }
 
@@ -2867,6 +2924,9 @@
       }
       if (col === "Prestador_1_Nome") {
         return "vehicle-col-provider";
+      }
+      if (col === "Tipo") {
+        return "vehicle-col-tipo";
       }
       return "";
     }
@@ -2973,6 +3033,12 @@
 
       if (isAddressColumn(col) && value !== "-") {
         return `<button type="button" class="vehicle-copy-text vehicle-cell-truncate" data-copy-value="${escapeAttribute(value)}" title="${escapeAttribute(value)}&#10;&#10;Clique para copiar">${escapeHtml(value)}</button>`;
+      }
+
+      if (col === "Tipo" || col === "tipo") {
+        const tipoColors = { Carro: "var(--accent)", Moto: "var(--accent-2)", Caminhão: "#7c5ba0" };
+        const dotColor = tipoColors[value] || "var(--muted)";
+        return `<span style="display:inline-flex;align-items:center;gap:6px"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${dotColor};flex:none"></span>${escapeHtml(value)}</span>`;
       }
 
       return `<span class="vehicle-cell-truncate" title="${escapeAttribute(value)}">${escapeHtml(value)}</span>`;
