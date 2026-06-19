@@ -1665,7 +1665,7 @@
     ];
     const compactVehicleColumnLimit = 13;
     const defaultVehicleColumns = [
-      "placa",
+      "Placa",
       "instituicao",
       "associado",
       "uf",
@@ -2384,6 +2384,9 @@
       if (chartKey === "distance") {
         return getDistanceBucketLabel(row);
       }
+      if (chartKey === "tipo") {
+        return normalizeCell(row["Tipo"]) || normalizeCell(row["tipo"]) || "";
+      }
       return "";
     }
 
@@ -2415,7 +2418,7 @@
         }
 
         for (const [chartKey, selectedValue] of Object.entries(state.chartSelections)) {
-          if (!selectedValue || chartKey === excludeChartKey || chartKey === "tipo") {
+          if (!selectedValue || chartKey === excludeChartKey) {
             continue;
           }
           if (getChartSelectionValue(row, chartKey) !== selectedValue) {
@@ -2443,6 +2446,7 @@
       const consultorChartRows = getRowsForCurrentFilters({ excludeChartKey: "consultor" });
       const regionalChartRows = getRowsForCurrentFilters({ excludeChartKey: "regional" });
       const distanceChartRows = getRowsForCurrentFilters({ excludeChartKey: "distance" });
+      const tipoChartRows = getRowsForCurrentFilters({ excludeChartKey: "tipo" });
       const providerStats = buildProviderStats(rows);
       const stateStats = buildGroupedStats(rows, getVehicleState);
       const consultorStats = buildGroupedStats(rows, (row) => normalizeCell(firstValue(row, candidateConsultorColumns)) || "Não informado");
@@ -2452,13 +2456,13 @@
       const regionalChartStats = buildGroupedStats(regionalChartRows, (row) => normalizeCell(firstValue(row, candidateRegionalColumns)) || "Não informado");
       const distanceStats = buildDistanceBuckets(distanceChartRows);
 
-      const tipoStats = buildGroupedStats(rows, (row) => {
+      const tipoStats = buildGroupedStats(tipoChartRows, (row) => {
         const tipo = normalizeCell(row["Tipo"]) || normalizeCell(row["tipo"]);
         return tipo || "Não informado";
       });
 
       renderKpis(rows, providerStats, stateStats);
-      renderTipoChart(ids.tipoChart, tipoStats, rows.length);
+      renderTipoChart(ids.tipoChart, tipoStats, tipoChartRows.length);
       renderBarChart(ids.providerChart, providerChartStats, providerChartRows.length, {
         chartKey: "provider",
         alternate: false,
@@ -2783,7 +2787,7 @@
         el.addEventListener("click", () => {
           const value = el.dataset.tipo;
           state.chartSelections.tipo = state.chartSelections.tipo === value ? "" : value;
-          renderTipoChart(container, items, total);
+          applyFilters();
         });
       });
     }
