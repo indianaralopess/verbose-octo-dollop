@@ -1357,6 +1357,7 @@
       <div class="status-line" id="statusLine">
         Aguardando dados do resultado final.
       </div>
+      <div style="margin-top:6px;font-size:12px;color:rgba(245,251,248,0.55)" id="updateTimestamp"></div>
     </section>
 
     <section class="grid cards">
@@ -1881,6 +1882,7 @@
       state.vehicleVisibleColumns = [...getDefaultVisibleVehicleColumns(headers), vehicleRouteColumn, vehicleWhatsAppColumn];
       state.rows = dataRows.map((values) => rowFromHeaders(headers, values));
       ids.statusLine.textContent = "";
+      document.getElementById("updateTimestamp").textContent = `Última atualização: ${new Date().toLocaleString("pt-BR")}`;
       populateFilters();
       clearFilters(false);
     }
