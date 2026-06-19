@@ -1576,6 +1576,7 @@
         consultor: "",
         regional: "",
         distance: "",
+        tipo: "",
       },
       brazilMap: null,
       brazilStatesGeoJson: null,
@@ -2354,6 +2355,7 @@
       state.chartSelections.consultor = "";
       state.chartSelections.regional = "";
       state.chartSelections.distance = "";
+      state.chartSelections.tipo = "";
       state.providerDetail = "";
       for (const col of state.dynamicFilterKeys) {
         state.dynamicFilterSelections[col] = [];
@@ -2413,7 +2415,7 @@
         }
 
         for (const [chartKey, selectedValue] of Object.entries(state.chartSelections)) {
-          if (!selectedValue || chartKey === excludeChartKey) {
+          if (!selectedValue || chartKey === excludeChartKey || chartKey === "tipo") {
             continue;
           }
           if (getChartSelectionValue(row, chartKey) !== selectedValue) {
@@ -2760,20 +2762,30 @@
           color: colors[item.label] || "var(--accent)",
         };
       });
+      const activeTipo = state.chartSelections.tipo;
       container.innerHTML = `
-        <div class="bar-track" style="height:32px;margin-bottom:16px">
-          ${segments.map((s) => `<div class="bar-fill" style="display:inline-block;width:${s.pct}%;height:100%;background:${s.color};float:left" title="${escapeHtml(s.label)}: ${formatNumber(s.placas)} (${formatNumber(s.pct,1)}%)"></div>`).join("")}
-        </div>
-        <div style="display:flex;flex-wrap:wrap;gap:16px">
-          ${segments.map((s) => `
-            <div style="display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:700">
-              <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${s.color};flex:none"></span>
-              <span>${escapeHtml(s.label)}</span>
-              <span style="color:var(--muted);font-weight:400">${formatNumber(s.placas)} • ${formatNumber(s.pct,1)}%</span>
-            </div>
-          `).join("")}
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div style="display:flex;height:36px;border-radius:999px;overflow:hidden;background:#efe5d8;cursor:pointer">
+            ${segments.map((s) => `
+              <div data-tipo="${escapeAttribute(s.label)}" style="width:${s.pct}%;height:100%;background:${s.color};display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;opacity:${activeTipo && activeTipo !== s.label ? "0.3" : "1"};transition:opacity 0.2s" title="${escapeHtml(s.label)}: ${formatNumber(s.placas)} (${formatNumber(s.pct,1)}%)">
+                <span style="font-size:11px;font-weight:600;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,0.25);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px">${formatNumber(s.placas)} • ${formatNumber(s.pct,1)}%</span>
+              </div>
+            `).join("")}
+          </div>
+          <div style="display:flex">
+            ${segments.map((s) => `
+              <div style="width:${s.pct}%;text-align:center;font-size:12px;font-weight:600;color:var(--text);opacity:${activeTipo && activeTipo !== s.label ? "0.3" : "1"};transition:opacity 0.2s;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 2px">${escapeHtml(s.label)}</div>
+            `).join("")}
+          </div>
         </div>
       `;
+      container.querySelectorAll("[data-tipo]").forEach((el) => {
+        el.addEventListener("click", () => {
+          const value = el.dataset.tipo;
+          state.chartSelections.tipo = state.chartSelections.tipo === value ? "" : value;
+          renderTipoChart(container, items, total);
+        });
+      });
     }
 
     function renderProviderTable(providerStats, total) {
