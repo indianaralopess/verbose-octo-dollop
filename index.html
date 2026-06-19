@@ -1773,6 +1773,11 @@
             continue;
           }
 
+          const lastModified = response.headers.get("Last-Modified");
+          if (lastModified) {
+            document.getElementById("updateTimestamp").textContent = `Última atualização: ${new Date(lastModified).toLocaleString("pt-BR")}`;
+          }
+
           const text = await response.text();
           const rows = parseCsv(text);
           if (!rows.length) {
@@ -1850,6 +1855,12 @@
       populateResultFileSelect();
       state.activeResultFileName = state.resultFiles[0].name;
       ids.resultFileSelect.value = state.activeResultFileName;
+
+      const firstFile = state.resultFiles[0]?.file;
+      if (firstFile?.lastModified) {
+        document.getElementById("updateTimestamp").textContent = `Última atualização: ${new Date(firstFile.lastModified).toLocaleString("pt-BR")}`;
+      }
+
       loadActiveResult();
     }
 
@@ -1882,7 +1893,6 @@
       state.vehicleVisibleColumns = [...getDefaultVisibleVehicleColumns(headers), vehicleRouteColumn, vehicleWhatsAppColumn];
       state.rows = dataRows.map((values) => rowFromHeaders(headers, values));
       ids.statusLine.textContent = "";
-      document.getElementById("updateTimestamp").textContent = `Última atualização: ${new Date().toLocaleString("pt-BR")}`;
       populateFilters();
       clearFilters(false);
     }
