@@ -3156,39 +3156,27 @@
       renderVehicleColumnSelector();
     }
 
-    function toExcelXml(rows, headers) {
-      const esc = (v) => String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-      let xml = `<?xml version="1.0" encoding="UTF-8"?>
-<?mso-application progid="Excel.Sheet"?>
-<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
- xmlns:o="urn:schemas-microsoft-com:office:office"
- xmlns:x="urn:schemas-microsoft-com:office:excel"
- xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
- <Worksheet ss:Name="Veiculos">
-  <Table>\n`;
-      xml += "    <Row>\n";
+    function toExcelHtml(rows, headers) {
+      const esc = (v) => String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Veiculos</x:Name></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>\n`;
+      html += "    <tr>";
       for (const h of headers) {
-        xml += `      <Cell><Data ss:Type="String">${esc(h)}</Data></Cell>\n`;
+        html += `<th>${esc(h)}</th>`;
       }
-      xml += "    </Row>\n";
+      html += "</tr>\n";
       for (const row of rows) {
-        xml += "    <Row>\n";
+        html += "    <tr>";
         for (const h of headers) {
-          const val = row[h];
-          const num = String(val ?? "").replace(",", ".");
-          const isNum = /^\d+(\.\d+)?$/.test(num.trim());
-          xml += `      <Cell><Data ss:Type="${isNum ? "Number" : "String"}">${isNum ? num.trim() : esc(val)}</Data></Cell>\n`;
+          html += `<td>${esc(row[h] ?? "")}</td>`;
         }
-        xml += "    </Row>\n";
+        html += "</tr>\n";
       }
-      xml += `  </Table>
- </Worksheet>
-</Workbook>`;
-      return xml;
+      html += "</table></body></html>";
+      return html;
     }
 
-    function downloadExcel(xml, filename) {
-      const blob = new Blob([xml], { type: "application/vnd.ms-excel;charset=utf-8" });
+    function downloadExcel(html, filename) {
+      const blob = new Blob(["\uFEFF" + html], { type: "application/vnd.ms-excel;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -3201,7 +3189,7 @@
       if (!state.filteredRows.length) {
         return;
       }
-      const xml = toExcelXml(state.filteredRows, state.vehicleColumns);
+      const xml = toExcelHtml(state.filteredRows, state.vehicleColumns);
       downloadExcel(xml, `dashboard_completo_${timestamp()}.xls`);
     }
 
@@ -3212,7 +3200,7 @@
       const cols = state.vehicleVisibleColumns.filter(
         (c) => c !== vehicleRouteColumn && c !== vehicleWhatsAppColumn
       );
-      const xml = toExcelXml(state.filteredRows, cols);
+      const xml = toExcelHtml(state.filteredRows, cols);
       downloadExcel(xml, `dashboard_tabela_${timestamp()}.xls`);
     }
 
@@ -3418,7 +3406,7 @@
 
     function exportXmlView() {
       if (!state.filteredRows.length) return;
-      const xml = toExcelXml(state.filteredRows, state.vehicleColumns);
+      const xml = toExcelHtml(state.filteredRows, state.vehicleColumns);
       downloadExcel(xml, `veiculos_${timestamp()}.xls`);
     }
 
