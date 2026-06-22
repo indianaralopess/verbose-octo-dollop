@@ -3156,19 +3156,53 @@
       renderVehicleColumnSelector();
     }
 
+    function toExcelXml(rows, headers) {
+      const esc = (v) => String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+ <Worksheet ss:Name="Veiculos">
+  <Table>\n`;
+      xml += "    <Row>\n";
+      for (const h of headers) {
+        xml += `      <Cell><Data ss:Type="String">${esc(h)}</Data></Cell>\n`;
+      }
+      xml += "    </Row>\n";
+      for (const row of rows) {
+        xml += "    <Row>\n";
+        for (const h of headers) {
+          const val = row[h];
+          const num = String(val ?? "").replace(",", ".");
+          const isNum = /^\d+(\.\d+)?$/.test(num.trim());
+          xml += `      <Cell><Data ss:Type="${isNum ? "Number" : "String"}">${isNum ? num.trim() : esc(val)}</Data></Cell>\n`;
+        }
+        xml += "    </Row>\n";
+      }
+      xml += `  </Table>
+ </Worksheet>
+</Workbook>`;
+      return xml;
+    }
+
+    function downloadExcel(xml, filename) {
+      const blob = new Blob([xml], { type: "application/vnd.ms-excel;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
     function exportFilteredView() {
       if (!state.filteredRows.length) {
         return;
       }
-
-      const csv = toCsv(state.filteredRows, state.vehicleColumns);
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "dashboard_filtrado.csv";
-      a.click();
-      URL.revokeObjectURL(url);
+      const xml = toExcelXml(state.filteredRows, state.vehicleColumns);
+      downloadExcel(xml, `dashboard_completo_${timestamp()}.xls`);
     }
 
     function exportTableCsv() {
@@ -3178,14 +3212,8 @@
       const cols = state.vehicleVisibleColumns.filter(
         (c) => c !== vehicleRouteColumn && c !== vehicleWhatsAppColumn
       );
-      const csv = toCsv(state.filteredRows, cols);
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "dashboard_tabela.csv";
-      a.click();
-      URL.revokeObjectURL(url);
+      const xml = toExcelXml(state.filteredRows, cols);
+      downloadExcel(xml, `dashboard_tabela_${timestamp()}.xls`);
     }
 
     function exportPdfView() {
@@ -3382,52 +3410,16 @@
       return row;
     }
 
-    function exportXmlView() {
-      if (!state.filteredRows.length) return;
-      const headers = state.vehicleColumns;
-      const rows = state.filteredRows;
-      const esc = (v) => String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-
-      let xml = `<?xml version="1.0" encoding="UTF-8"?>
-<?mso-application progid="Excel.Sheet"?>
-<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
- xmlns:o="urn:schemas-microsoft-com:office:office"
- xmlns:x="urn:schemas-microsoft-com:office:excel"
- xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
- <Worksheet ss:Name="Veiculos">
-  <Table>\n`;
-
-      xml += "    <Row>\n";
-      for (const h of headers) {
-        xml += `      <Cell><Data ss:Type="String">${esc(h)}</Data></Cell>\n`;
-      }
-      xml += "    </Row>\n";
-
-      for (const row of rows) {
-        xml += "    <Row>\n";
-        for (const h of headers) {
-          const val = row[h];
-          const num = String(val ?? "").replace(",", ".");
-          const isNum = /^\d+(\.\d+)?$/.test(num.trim());
-          xml += `      <Cell><Data ss:Type="${isNum ? "Number" : "String"}">${isNum ? num.trim() : esc(val)}</Data></Cell>\n`;
-        }
-        xml += "    </Row>\n";
-      }
-
-      xml += `  </Table>
- </Worksheet>
-</Workbook>`;
-
+    function timestamp() {
       const now = new Date();
       const pad = (n) => String(n).padStart(2, "0");
-      const ts = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}h${pad(now.getMinutes())}`;
-      const blob = new Blob([xml], { type: "application/vnd.ms-excel;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `veiculos_${ts}.xml`;
-      a.click();
-      URL.revokeObjectURL(url);
+      return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}h${pad(now.getMinutes())}`;
+    }
+
+    function exportXmlView() {
+      if (!state.filteredRows.length) return;
+      const xml = toExcelXml(state.filteredRows, state.vehicleColumns);
+      downloadExcel(xml, `veiculos_${timestamp()}.xls`);
     }
 
     function toCsv(rows, headers) {
