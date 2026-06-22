@@ -1969,10 +1969,12 @@
         });
       });
 
-      const searchInput = ids.vehicleColumnsMenu.querySelector(".column-search");
-      if (searchInput) {
-        searchInput.addEventListener("input", () => {
-          const filter = searchInput.value.toLowerCase();
+      if (!ids.vehicleColumnsMenu._searchListener) {
+        ids.vehicleColumnsMenu._searchListener = true;
+        ids.vehicleColumnsMenu.addEventListener("input", (e) => {
+          const input = e.target.closest(".column-search");
+          if (!input) return;
+          const filter = input.value.toLowerCase();
           ids.vehicleColumnsMenu.querySelectorAll(".column-item").forEach((item) => {
             const searchText = item.dataset.search || item.textContent.toLowerCase();
             item.hidden = !searchText.includes(filter);
