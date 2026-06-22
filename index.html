@@ -2709,6 +2709,7 @@
       }
 
       const activeSelection = chartKey ? state.chartSelections[chartKey] : "";
+      const anyFilterActive = Object.values(state.chartSelections).some((v) => v !== "");
       const max = Math.max(...items.map((item) => item.placas), 1);
       const renderedItems = visibleCount > 0 ? items.slice(0, visibleCount) : items;
 
@@ -2716,10 +2717,12 @@
         const percentOfMax = (item.placas / max) * 100;
         const percentOfTotal = total ? (item.placas / total) * 100 : 0;
         const isActive = Boolean(chartKey) && activeSelection === item.label;
+        const hasOwnFilter = Boolean(chartKey) && activeSelection !== "";
         const classActive = isActive ? ' filter-active' : '';
         const classClickable = chartKey ? ' clickable' : '';
+        const rowOpacity = (hasOwnFilter || anyFilterActive) && !isActive ? '0.3' : '1';
         return `
-          <div class="bar-row${classClickable}${classActive}" data-chart-key="${escapeAttribute(chartKey)}" data-chart-value="${escapeAttribute(item.label)}">
+          <div class="bar-row${classClickable}${classActive}" data-chart-key="${escapeAttribute(chartKey)}" data-chart-value="${escapeAttribute(item.label)}" style="opacity:${rowOpacity};transition:opacity 0.2s">
             <div class="bar-label" title="${escapeHtml(item.label)}">${escapeHtml(item.label)}${labelSub && item[labelSub] ? ` <span style="font-weight:400;font-size:11px;color:var(--muted)">— ${escapeHtml(item[labelSub])}</span>` : ""}</div>
             <div class="bar-track">
               <div class="bar-fill ${alternate ? "alt" : ""}" style="width:${percentOfMax}%"></div>
@@ -2779,18 +2782,19 @@
         };
       });
       const activeTipo = state.chartSelections.tipo;
+      const anyFilterActive = Object.values(state.chartSelections).some((v) => v !== "");
       container.innerHTML = `
         <div style="display:flex;flex-direction:column;gap:4px">
           <div style="display:flex;height:36px;border-radius:999px;overflow:hidden;background:#efe5d8;cursor:pointer">
             ${segments.map((s) => `
-              <div data-tipo="${escapeAttribute(s.label)}" style="width:${s.pct}%;height:100%;background:${s.color};display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;opacity:${activeTipo && activeTipo !== s.label ? "0.3" : "1"};transition:opacity 0.2s" title="${escapeHtml(s.label)}: ${formatNumber(s.placas)} (${formatNumber(s.pct,1)}%)">
+              <div data-tipo="${escapeAttribute(s.label)}" style="width:${s.pct}%;height:100%;background:${s.color};display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;opacity:${(activeTipo || anyFilterActive) && (!activeTipo || activeTipo !== s.label) ? "0.3" : "1"};transition:opacity 0.2s" title="${escapeHtml(s.label)}: ${formatNumber(s.placas)} (${formatNumber(s.pct,1)}%)">
                 <span style="font-size:11px;font-weight:600;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,0.25);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px">${formatNumber(s.placas)} • ${formatNumber(s.pct,1)}%</span>
               </div>
             `).join("")}
           </div>
           <div style="display:flex">
             ${segments.map((s) => `
-              <div style="width:${s.pct}%;text-align:center;font-size:12px;font-weight:600;color:var(--text);opacity:${activeTipo && activeTipo !== s.label ? "0.3" : "1"};transition:opacity 0.2s;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 2px">${escapeHtml(s.label)}</div>
+              <div style="width:${s.pct}%;text-align:center;font-size:12px;font-weight:600;color:var(--text);opacity:${(activeTipo || anyFilterActive) && (!activeTipo || activeTipo !== s.label) ? "0.3" : "1"};transition:opacity 0.2s;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 2px">${escapeHtml(s.label)}</div>
             `).join("")}
           </div>
         </div>
